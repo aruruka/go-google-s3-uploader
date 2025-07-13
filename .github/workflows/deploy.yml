@@ -114,9 +114,8 @@ jobs:
             echo "🆕 Service does not exist, creating new service..."
             
             # 创建服务配置JSON
-            cat > service-config.json << EOF
-            {
-              "ServiceName": "${{ env.APP_RUNNER_SERVICE_NAME }}",
+            echo '{
+              "ServiceName": "'"${{ env.APP_RUNNER_SERVICE_NAME }}"'",
               "SourceConfiguration": {
                 "AutoDeploymentsEnabled": true,
                 "CodeRepository": {
@@ -143,8 +142,7 @@ jobs:
                 "HealthyThreshold": 2,
                 "UnhealthyThreshold": 3
               }
-            }
-            EOF
+            }' > service-config.json
             
             # 创建服务
             CREATE_RESULT=$(aws apprunner create-service --cli-input-json file://service-config.json)
