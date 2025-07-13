@@ -107,9 +107,24 @@ jobs:
           
           # 检查服务是否存在
           if aws apprunner describe-service --service-arn "arn:aws:apprunner:${{ env.AWS_REGION }}:925867211284:service/${{ env.APP_RUNNER_SERVICE_NAME }}" 2>/dev/null; then
-            echo "✅ Service exists, triggering deployment..."
-            aws apprunner start-deployment --service-arn "arn:aws:apprunner:${{ env.AWS_REGION }}:925867211284:service/${{ env.APP_RUNNER_SERVICE_NAME }}"
+            echo "✅ Service exists, checking status..."
             SERVICE_ARN="arn:aws:apprunner:${{ env.AWS_REGION }}:925867211284:service/${{ env.APP_RUNNER_SERVICE_NAME }}"
+            
+            # 先等待服务处于可操作状态
+            echo "⏳ Waiting for service to be in a stable state..."
+            for i in {1..30}; do
+              STATUS=$(aws apprunner describe-service --service-arn $SERVICE_ARN --query 'Service.Status' --output text)
+              echo "Service status: $STATUS (attempt $i/30)"
+              if [ "$STATUS" = "RUNNING" ]; then
+                echo "✅ Service is running, triggering deployment..."
+                aws apprunner start-deployment --service-arn $SERVICE_ARN
+                break
+              elif [ "$STATUS" = "CREATE_FAILED" ] || [ "$STATUS" = "DELETE_FAILED" ]; then
+                echo "❌ Service failed with status: $STATUS"
+                exit 1
+              fi
+              sleep 10
+            done
           else
             echo "🆕 Service does not exist, creating new service..."
             
