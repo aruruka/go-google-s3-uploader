@@ -117,26 +117,22 @@ jobs:
             echo '{
               "ServiceName": "'"${{ env.APP_RUNNER_SERVICE_NAME }}"'",
               "SourceConfiguration": {
-                "AutoDeploymentsEnabled": true,
-                "CodeRepository": {
-                  "RepositoryUrl": "https://github.com/${{ github.repository }}",
-                  "SourceCodeVersion": {
-                    "Type": "BRANCH",
-                    "Value": "main"
+                "AutoDeploymentsEnabled": false,
+                "ImageRepository": {
+                  "ImageIdentifier": "public.ecr.aws/aws-containers/hello-app-runner:latest",
+                  "ImageConfiguration": {
+                    "Port": "8000"
                   },
-                  "CodeConfiguration": {
-                    "ConfigurationSource": "REPOSITORY"
-                  }
+                  "ImageRepositoryType": "ECR_PUBLIC"
                 }
               },
               "InstanceConfiguration": {
                 "Cpu": "0.25 vCPU",
-                "Memory": "0.5 GB",
-                "InstanceRoleArn": "arn:aws:iam::925867211284:role/AppRunnerInstanceRole"
+                "Memory": "0.5 GB"
               },
               "HealthCheckConfiguration": {
                 "Protocol": "HTTP",
-                "Path": "/health",
+                "Path": "/",
                 "Interval": 20,
                 "Timeout": 5,
                 "HealthyThreshold": 2,
