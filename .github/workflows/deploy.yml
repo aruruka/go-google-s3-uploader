@@ -125,7 +125,7 @@ jobs:
                     "Value": "main"
                   },
                   "CodeConfiguration": {
-                    "ConfigurationSource": "CONFIGURATION_FILE"
+                    "ConfigurationSource": "REPOSITORY"
                   }
                 }
               },
@@ -137,7 +137,7 @@ jobs:
               "HealthCheckConfiguration": {
                 "Protocol": "HTTP",
                 "Path": "/health",
-                "Interval": 30,
+                "Interval": 20,
                 "Timeout": 5,
                 "HealthyThreshold": 2,
                 "UnhealthyThreshold": 3
