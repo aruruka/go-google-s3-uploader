@@ -112,4 +112,8 @@ ECR Permission Update:
 - Enables GitHub Actions to build and push custom Go application Docker images
 - Replaces hello-app-runner with actual application deployment
 
+Service Recreation:
+- Deleted existing ECR_PUBLIC service to avoid repository type conflict
+- Will create new service with private ECR image from scratch
+
 You should now be able to successfully create App Runner services.
