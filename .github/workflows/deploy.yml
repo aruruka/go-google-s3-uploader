@@ -152,6 +152,9 @@ jobs:
                   "ServiceArn": "'"$SERVICE_ARN"'",
                   "SourceConfiguration": {
                     "AutoDeploymentsEnabled": false,
+                    "AuthenticationConfiguration": {
+                      "AccessRoleArn": "${{ env.APP_RUNNER_ACCESS_ROLE_ARN }}"
+                    },
                     "ImageRepository": {
                       "ImageIdentifier": "'"${{ steps.image-tag.outputs.FULL_IMAGE_URI }}"'",
                       "ImageConfiguration": {
@@ -163,8 +166,7 @@ jobs:
                         }
                       },
                       "ImageRepositoryType": "ECR"
-                    },
-                    "AccessRoleArn": "${{ env.APP_RUNNER_ACCESS_ROLE_ARN }}"
+                    }
                   }
                 }' > update-config.json
                 
@@ -184,6 +186,9 @@ jobs:
               "ServiceName": "'"${{ env.APP_RUNNER_SERVICE_NAME }}"'",
               "SourceConfiguration": {
                 "AutoDeploymentsEnabled": false,
+                "AuthenticationConfiguration": {
+                  "AccessRoleArn": "${{ env.APP_RUNNER_ACCESS_ROLE_ARN }}"
+                },
                 "ImageRepository": {
                   "ImageIdentifier": "'"${{ steps.image-tag.outputs.FULL_IMAGE_URI }}"'",
                   "ImageConfiguration": {
@@ -195,8 +200,7 @@ jobs:
                     }
                   },
                   "ImageRepositoryType": "ECR"
-                },
-                "AccessRoleArn": "${{ env.APP_RUNNER_ACCESS_ROLE_ARN }}"
+                }
               },
               "InstanceConfiguration": {
                 "Cpu": "0.25 vCPU",
