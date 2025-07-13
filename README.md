@@ -104,4 +104,12 @@ Permission Update Details:
 - Allows App Runner to automatically create the necessary service-linked role when the first service is created in the account
 - Fixed previous access denied error
 
+# ECR Integration Test
+# Testing Docker build and push to private ECR registry
+
+ECR Permission Update:
+- Added ECR push permissions: `ecr:PutImage`, `ecr:InitiateLayerUpload`, `ecr:UploadLayerPart`, `ecr:CompleteLayerUpload`
+- Enables GitHub Actions to build and push custom Go application Docker images
+- Replaces hello-app-runner with actual application deployment
+
 You should now be able to successfully create App Runner services.
