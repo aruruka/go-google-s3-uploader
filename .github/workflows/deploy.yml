@@ -148,7 +148,19 @@ jobs:
           
           # 等待部署完成
           echo "⏳ Waiting for service to be ready..."
-          aws apprunner wait service-ready --service-arn $SERVICE_ARN
+          # 等待服务状态变为 RUNNING，最多等待10分钟
+          for i in {1..60}; do
+            STATUS=$(aws apprunner describe-service --service-arn $SERVICE_ARN --query 'Service.Status' --output text)
+            echo "Service status: $STATUS (attempt $i/60)"
+            if [ "$STATUS" = "RUNNING" ]; then
+              echo "✅ Service is now running!"
+              break
+            elif [ "$STATUS" = "CREATE_FAILED" ] || [ "$STATUS" = "DELETE_FAILED" ]; then
+              echo "❌ Service failed with status: $STATUS"
+              exit 1
+            fi
+            sleep 10
+          done
           
           # 获取服务URL
           echo "🌐 Getting service URL..."
