@@ -27,17 +27,36 @@ jobs:
         uses: actions/setup-go@v4
         with:
           go-version: '1.24'
+          cache-dependency-path: |
+            app-server/go.sum
+            auth-server/go.sum
+            shared/go.sum
 
       - name: Run tests
-        working-directory: ./app-server
         run: |
+          echo "🧪 Testing app-server module..."
+          cd app-server
           go mod tidy
           go test ./...
+          
+          echo "🧪 Testing auth-server module..."
+          cd ../auth-server
+          go mod tidy
+          go test ./...
+          
+          echo "✅ All tests passed!"
 
       - name: Build application
-        working-directory: ./app-server
         run: |
+          echo "🔨 Building app-server..."
+          cd app-server
           go build -o main .
+          
+          echo "🔨 Building auth-server..."
+          cd ../auth-server
+          go build -o main .
+          
+          echo "✅ All builds completed!"
 
   deploy:
     needs: test
