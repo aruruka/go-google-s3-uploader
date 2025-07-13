@@ -11,6 +11,8 @@ on:
 env:
   AWS_REGION: ap-northeast-1
   APP_RUNNER_SERVICE_NAME: go-s3-uploader-service
+  ECR_REGISTRY: 925867211284.dkr.ecr.ap-northeast-1.amazonaws.com
+  ECR_REPOSITORY: go-s3-uploader
 
 permissions:
   id-token: write   # Required for OIDC
@@ -100,6 +102,32 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Set up Docker image tag
+        id: image-tag
+        run: |
+          if [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            TAG="${{ steps.get_tag.outputs.TAG }}"
+          else
+            TAG="latest"
+          fi
+          echo "IMAGE_TAG=$TAG" >> $GITHUB_OUTPUT
+          echo "FULL_IMAGE_URI=${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:$TAG" >> $GITHUB_OUTPUT
+
+      - name: Build, tag, and push image to Amazon ECR
+        run: |
+          echo "🐳 Building Docker image..."
+          docker build -t ${{ env.ECR_REPOSITORY }}:${{ steps.image-tag.outputs.IMAGE_TAG }} .
+          docker tag ${{ env.ECR_REPOSITORY }}:${{ steps.image-tag.outputs.IMAGE_TAG }} ${{ steps.image-tag.outputs.FULL_IMAGE_URI }}
+          
+          echo "📤 Pushing image to ECR..."
+          docker push ${{ steps.image-tag.outputs.FULL_IMAGE_URI }}
+          
+          echo "✅ Image pushed successfully: ${{ steps.image-tag.outputs.FULL_IMAGE_URI }}"
+
       - name: Deploy to App Runner
         run: |
           # 尝试更新现有服务，如果不存在则创建新服务
@@ -107,7 +135,7 @@ jobs:
           
           # 检查服务是否存在
           if aws apprunner describe-service --service-arn "arn:aws:apprunner:${{ env.AWS_REGION }}:925867211284:service/${{ env.APP_RUNNER_SERVICE_NAME }}" 2>/dev/null; then
-            echo "✅ Service exists, checking status..."
+            echo "✅ Service exists, updating with new image..."
             SERVICE_ARN="arn:aws:apprunner:${{ env.AWS_REGION }}:925867211284:service/${{ env.APP_RUNNER_SERVICE_NAME }}"
             
             # 先等待服务处于可操作状态
@@ -116,8 +144,29 @@ jobs:
               STATUS=$(aws apprunner describe-service --service-arn $SERVICE_ARN --query 'Service.Status' --output text)
               echo "Service status: $STATUS (attempt $i/30)"
               if [ "$STATUS" = "RUNNING" ]; then
-                echo "✅ Service is running, triggering deployment..."
-                aws apprunner start-deployment --service-arn $SERVICE_ARN
+                echo "✅ Service is running, updating with new image..."
+                
+                # 更新服务配置
+                echo '{
+                  "ServiceArn": "'"$SERVICE_ARN"'",
+                  "SourceConfiguration": {
+                    "AutoDeploymentsEnabled": false,
+                    "ImageRepository": {
+                      "ImageIdentifier": "'"${{ steps.image-tag.outputs.FULL_IMAGE_URI }}"'",
+                      "ImageConfiguration": {
+                        "Port": "8080",
+                        "RuntimeEnvironmentVariables": {
+                          "PORT": "8080",
+                          "AWS_REGION": "${{ env.AWS_REGION }}",
+                          "S3_BUCKET_NAME": "raymond-go-s3-uploader-dev-2025"
+                        }
+                      },
+                      "ImageRepositoryType": "ECR"
+                    }
+                  }
+                }' > update-config.json
+                
+                aws apprunner update-service --cli-input-json file://update-config.json
                 break
               elif [ "$STATUS" = "CREATE_FAILED" ] || [ "$STATUS" = "DELETE_FAILED" ]; then
                 echo "❌ Service failed with status: $STATUS"
@@ -134,11 +183,16 @@ jobs:
               "SourceConfiguration": {
                 "AutoDeploymentsEnabled": false,
                 "ImageRepository": {
-                  "ImageIdentifier": "public.ecr.aws/aws-containers/hello-app-runner:latest",
+                  "ImageIdentifier": "'"${{ steps.image-tag.outputs.FULL_IMAGE_URI }}"'",
                   "ImageConfiguration": {
-                    "Port": "8000"
+                    "Port": "8080",
+                    "RuntimeEnvironmentVariables": {
+                      "PORT": "8080",
+                      "AWS_REGION": "${{ env.AWS_REGION }}",
+                      "S3_BUCKET_NAME": "raymond-go-s3-uploader-dev-2025"
+                    }
                   },
-                  "ImageRepositoryType": "ECR_PUBLIC"
+                  "ImageRepositoryType": "ECR"
                 }
               },
               "InstanceConfiguration": {
@@ -147,7 +201,7 @@ jobs:
               },
               "HealthCheckConfiguration": {
                 "Protocol": "HTTP",
-                "Path": "/",
+                "Path": "/health",
                 "Interval": 20,
                 "Timeout": 5,
                 "HealthyThreshold": 2,
