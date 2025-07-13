@@ -1,0 +1,99 @@
+{{define "head"}}
+<style>
+    .error-container {
+        max-width: 500px;
+        margin: 2rem auto;
+        padding: 2rem;
+        text-align: center;
+    }
+    .error-card {
+        background: white;
+        border-radius: 8px;
+        padding: 2rem;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .error-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+    }
+    .error-title {
+        color: #dc3545;
+        margin-bottom: 1rem;
+    }
+    .error-message {
+        color: #666;
+        margin-bottom: 2rem;
+        line-height: 1.6;
+    }
+    .error-code {
+        background: #f8f9fa;
+        border-radius: 6px;
+        padding: 1rem;
+        font-family: monospace;
+        color: #666;
+        margin: 1rem 0;
+    }
+    .back-btn {
+        display: inline-block;
+        padding: 10px 20px;
+        background: #007bff;
+        color: white;
+        text-decoration: none;
+        border-radius: 6px;
+        margin: 0.5rem;
+        transition: background 0.2s;
+    }
+    .back-btn:hover {
+        background: #0056b3;
+    }
+    .retry-btn {
+        background: #28a745;
+    }
+    .retry-btn:hover {
+        background: #1e7e34;
+    }
+</style>
+{{end}}
+
+{{define "content"}}
+<div class="error-container">
+    <div class="error-card">
+        {{if eq .StatusCode 404}}
+            <div class="error-icon">🔍</div>
+            <h1 class="error-title">Page Not Found</h1>
+            <p class="error-message">The page you're looking for doesn't exist.</p>
+        {{else if eq .StatusCode 403}}
+            <div class="error-icon">🔒</div>
+            <h1 class="error-title">Access Denied</h1>
+            <p class="error-message">You don't have permission to access this resource.</p>
+        {{else if eq .StatusCode 500}}
+            <div class="error-icon">⚠️</div>
+            <h1 class="error-title">Server Error</h1>
+            <p class="error-message">Something went wrong on our end. Please try again later.</p>
+        {{else}}
+            <div class="error-icon">❌</div>
+            <h1 class="error-title">Error {{.StatusCode}}</h1>
+            <p class="error-message">{{if .Message}}{{.Message}}{{else}}An unexpected error occurred.{{end}}</p>
+        {{end}}
+        
+        {{if .Details}}
+        <div class="error-code">
+            Error Details: {{.Details}}
+        </div>
+        {{end}}
+        
+        <div>
+            <a href="/" class="back-btn">🏠 Go Home</a>
+            {{if ne .StatusCode 404}}
+            <a href="javascript:history.back()" class="back-btn">⬅️ Go Back</a>
+            {{end}}
+            {{if eq .StatusCode 500}}
+            <a href="javascript:window.location.reload()" class="back-btn retry-btn">🔄 Retry</a>
+            {{end}}
+        </div>
+    </div>
+</div>
+{{end}}
+
+{{define "scripts"}}
+{{end}}

@@ -1,0 +1,72 @@
+{{define "head"}}
+<style>
+    .callback-container {
+        max-width: 500px;
+        margin: 2rem auto;
+        padding: 2rem;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        text-align: center;
+    }
+    .callback-success {
+        color: #28a745;
+        margin-bottom: 1rem;
+    }
+    .callback-error {
+        color: #dc3545;
+        margin-bottom: 1rem;
+    }
+    .user-info {
+        background: #f8f9fa;
+        padding: 1rem;
+        border-radius: 6px;
+        margin: 1rem 0;
+    }
+    .continue-btn {
+        display: inline-block;
+        padding: 10px 20px;
+        background: #28a745;
+        color: white;
+        text-decoration: none;
+        border-radius: 6px;
+        margin-top: 1rem;
+    }
+</style>
+{{end}}
+
+{{define "content"}}
+<div class="callback-container">
+    {{if .Error}}
+        <h1 class="callback-error">❌ Authentication Failed</h1>
+        <p>{{.Error}}</p>
+        <a href="/" class="continue-btn">Try Again</a>
+    {{else}}
+        <h1 class="callback-success">✅ Authentication Successful</h1>
+        {{if .User}}
+        <div class="user-info">
+            <p><strong>Welcome, {{.User.Name}}!</strong></p>
+            <p>Email: {{.User.Email}}</p>
+        </div>
+        {{end}}
+        <p>You can now close this window and return to the main application.</p>
+        <a href="{{.RedirectURL}}" class="continue-btn">Continue to App</a>
+    {{end}}
+</div>
+{{end}}
+
+{{define "scripts"}}
+{{if not .Error}}
+<script>
+    // Auto-redirect after 3 seconds
+    setTimeout(function() {
+        if (window.opener) {
+            window.opener.location.reload();
+            window.close();
+        } else {
+            window.location.href = '{{.RedirectURL}}';
+        }
+    }, 3000);
+</script>
+{{end}}
+{{end}}

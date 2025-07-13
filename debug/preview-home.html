@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Template Preview - App Server Home</title>
+    <link rel="stylesheet" href="../shared/static/css/style.css">
+    <style>
+        /* Inline styles from home.html template */
+        .home-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+        }
+        .welcome-section {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        .app-title {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: #333;
+        }
+        .app-description {
+            font-size: 1.2rem;
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+        }
+        .action-card {
+            background: white;
+            border-radius: 8px;
+            padding: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        .upload-btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+        .upload-btn:hover {
+            background: #0056b3;
+        }
+        .auth-notice {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 6px;
+            padding: 1rem;
+            color: #856404;
+        }
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+        .feature-list li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #eee;
+        }
+        .feature-list li:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header Component - Authenticated State -->
+    <header class="header">
+        <nav class="navbar">
+            <div class="nav-container">
+                <div class="nav-brand">
+                    <h1>🚀 Google S3 Uploader</h1>
+                </div>
+                <div class="nav-menu">
+                    <div class="nav-user">
+                        <span class="user-info">👋 Hello, John Doe!</span>
+                        <a href="/logout" class="nav-link">Logout</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="main-content">
+        <!-- Success Flash Message -->
+        <div class="flash-message flash-success">
+            ✅ Welcome! You have successfully logged in.
+        </div>
+
+        <!-- Home Page Content -->
+        <div class="home-container">
+            <div class="welcome-section">
+                <h1 class="app-title">📱 Google S3 Uploader</h1>
+                <p class="app-description">
+                    Upload your images to AWS S3 using secure Google authentication.
+                    A modern, cloud-native application built with Go.
+                </p>
+            </div>
+
+            <!-- Authenticated User Content -->
+            <div class="action-card">
+                <h2>🚀 Ready to Upload</h2>
+                <p>Welcome back, John Doe! You're authenticated and ready to upload files.</p>
+                <a href="preview-upload.html" class="upload-btn">📷 Go to Upload Page</a>
+            </div>
+
+            <div class="action-card">
+                <h2>✨ Features</h2>
+                <ul class="feature-list">
+                    <li>🔒 Secure Google OAuth 2.0 authentication</li>
+                    <li>☁️ Direct upload to AWS S3</li>
+                    <li>🖼️ Support for multiple image formats</li>
+                    <li>📱 Responsive design</li>
+                    <li>⚡ Fast and lightweight</li>
+                </ul>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer Component -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-content">
+                <p>&copy; 2025 Google S3 Uploader. Built with Go 💙</p>
+                <div class="footer-links">
+                    <a href="https://golang.org" target="_blank">Go Lang</a>
+                    <a href="https://aws.amazon.com/s3/" target="_blank">AWS S3</a>
+                    <a href="https://developers.google.com/identity" target="_blank">Google OAuth</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../shared/static/js/app.js"></script>
+</body>
+</html>

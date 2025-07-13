@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Template Preview - Upload Page</title>
+    <link rel="stylesheet" href="../shared/static/css/style.css">
+    <style>
+        /* Inline styles from upload.html template */
+        .upload-container {
+            max-width: 600px;
+            margin: 2rem auto;
+            padding: 2rem;
+        }
+        .upload-card {
+            background: white;
+            border-radius: 8px;
+            padding: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .upload-title {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: #333;
+        }
+        .upload-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .form-label {
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+        .file-input {
+            padding: 12px;
+            border: 2px dashed #ddd;
+            border-radius: 6px;
+            background: #f8f9fa;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+        .file-input:hover {
+            border-color: #007bff;
+        }
+        .upload-btn {
+            padding: 12px 24px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .upload-btn:hover {
+            background: #1e7e34;
+        }
+        .upload-btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+        .upload-info {
+            background: #e7f3ff;
+            border: 1px solid #b3d9ff;
+            border-radius: 6px;
+            padding: 1rem;
+            color: #004085;
+            margin-bottom: 1rem;
+        }
+        .file-preview {
+            display: none;
+            margin-top: 1rem;
+            text-align: center;
+        }
+        .preview-image {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 6px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .progress-bar {
+            display: none;
+            width: 100%;
+            height: 6px;
+            background: #e9ecef;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 1rem;
+        }
+        .progress-fill {
+            height: 100%;
+            background: #28a745;
+            width: 0%;
+            transition: width 0.3s;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header Component - Authenticated State -->
+    <header class="header">
+        <nav class="navbar">
+            <div class="nav-container">
+                <div class="nav-brand">
+                    <h1>🚀 Google S3 Uploader</h1>
+                </div>
+                <div class="nav-menu">
+                    <div class="nav-user">
+                        <span class="user-info">👋 Hello, John Doe!</span>
+                        <a href="/logout" class="nav-link">Logout</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="main-content">
+        <!-- Upload Page Content -->
+        <div class="upload-container">
+            <div class="upload-card">
+                <h1 class="upload-title">📷 Upload Image to S3</h1>
+                
+                <div class="upload-info">
+                    <strong>ℹ️ Upload Information:</strong>
+                    <ul style="margin: 0.5rem 0 0 1rem;">
+                        <li>Supported formats: JPG, PNG, GIF, WebP</li>
+                        <li>Maximum file size: 10 MB</li>
+                        <li>Files will be stored securely in AWS S3</li>
+                    </ul>
+                </div>
+
+                <form action="/api/upload" method="post" enctype="multipart/form-data" class="upload-form" id="uploadForm">
+                    <div class="form-group">
+                        <label for="file" class="form-label">Choose image file:</label>
+                        <input type="file" id="file" name="file" accept="image/*" required class="file-input">
+                        <div class="file-preview" id="filePreview">
+                            <img id="previewImage" class="preview-image" alt="Preview">
+                            <p id="fileName"></p>
+                        </div>
+                    </div>
+                    
+                    <div class="progress-bar" id="progressBar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    
+                    <button type="submit" class="upload-btn" id="uploadBtn">
+                        🚀 Upload to S3
+                    </button>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer Component -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-content">
+                <p>&copy; 2025 Google S3 Uploader. Built with Go 💙</p>
+                <div class="footer-links">
+                    <a href="https://golang.org" target="_blank">Go Lang</a>
+                    <a href="https://aws.amazon.com/s3/" target="_blank">AWS S3</a>
+                    <a href="https://developers.google.com/identity" target="_blank">Google OAuth</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../shared/static/js/app.js"></script>
+    
+    <!-- Upload Page Specific JavaScript -->
+    <script>
+document.addEventListener('DOMContentLoaded', function() {
+    const fileInput = document.getElementById('file');
+    const filePreview = document.getElementById('filePreview');
+    const previewImage = document.getElementById('previewImage');
+    const fileName = document.getElementById('fileName');
+    const uploadForm = document.getElementById('uploadForm');
+    const uploadBtn = document.getElementById('uploadBtn');
+    const progressBar = document.getElementById('progressBar');
+    const progressFill = document.getElementById('progressFill');
+
+    // File preview
+    fileInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                previewImage.src = e.target.result;
+                fileName.textContent = `Selected: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`;
+                filePreview.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        } else {
+            filePreview.style.display = 'none';
+        }
+    });
+
+    // Form submission (demo version)
+    uploadForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const file = fileInput.files[0];
+        
+        if (!file) {
+            alert('Please select a file first.');
+            return;
+        }
+
+        // Demo upload simulation
+        uploadBtn.disabled = true;
+        uploadBtn.textContent = '⏳ Uploading...';
+        progressBar.style.display = 'block';
+
+        let progress = 0;
+        const progressInterval = setInterval(() => {
+            progress += Math.random() * 15;
+            if (progress > 100) {
+                progress = 100;
+                clearInterval(progressInterval);
+                
+                setTimeout(() => {
+                    window.location.href = 'preview-success.html';
+                }, 500);
+            }
+            progressFill.style.width = progress + '%';
+        }, 200);
+    });
+});
+    </script>
+</body>
+</html>

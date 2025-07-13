@@ -1,0 +1,23 @@
+{{define "header"}}
+<header class="header">
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <h1>🚀 Google S3 Uploader</h1>
+            </div>
+            <div class="nav-menu">
+                {{if .User}}
+                <div class="nav-user">
+                    <span class="user-info">👋 Hello, {{.User.Name}}!</span>
+                    <a href="/logout" class="nav-link">Logout</a>
+                </div>
+                {{else}}
+                <div class="nav-auth">
+                    <a href="/auth/google/login" class="nav-link">🔐 Login with Google</a>
+                </div>
+                {{end}}
+            </div>
+        </div>
+    </nav>
+</header>
+{{end}}

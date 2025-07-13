@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Template Preview - Auth Server Login</title>
+    <link rel="stylesheet" href="../shared/static/css/style.css">
+    <style>
+        /* Inline styles from login.html template */
+        .auth-container {
+            max-width: 400px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .auth-title {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: #333;
+        }
+        .auth-description {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: #666;
+            line-height: 1.5;
+        }
+        .google-login-btn {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background: #4285f4;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            text-align: center;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+        .google-login-btn:hover {
+            background: #3367d6;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header Component -->
+    <header class="header">
+        <nav class="navbar">
+            <div class="nav-container">
+                <div class="nav-brand">
+                    <h1>🚀 Google S3 Uploader</h1>
+                </div>
+                <div class="nav-menu">
+                    <div class="nav-auth">
+                        <a href="/auth/google/login" class="nav-link">🔐 Login with Google</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="main-content">
+        <!-- Login Page Content -->
+        <div class="auth-container">
+            <h1 class="auth-title">🔐 Authentication Server</h1>
+            <p class="auth-description">
+                This is the authentication server for our Google S3 Uploader app. 
+                Click below to login with your Google account.
+            </p>
+            <a href="/auth/google/login" class="google-login-btn">
+                🔑 Login with Google
+            </a>
+        </div>
+    </main>
+
+    <!-- Footer Component -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-content">
+                <p>&copy; 2025 Google S3 Uploader. Built with Go 💙</p>
+                <div class="footer-links">
+                    <a href="https://golang.org" target="_blank">Go Lang</a>
+                    <a href="https://aws.amazon.com/s3/" target="_blank">AWS S3</a>
+                    <a href="https://developers.google.com/identity" target="_blank">Google OAuth</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../shared/static/js/app.js"></script>
+</body>
+</html>

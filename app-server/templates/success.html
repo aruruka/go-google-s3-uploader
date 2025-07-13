@@ -1,0 +1,124 @@
+{{define "head"}}
+<style>
+    .success-container {
+        max-width: 600px;
+        margin: 2rem auto;
+        padding: 2rem;
+        text-align: center;
+    }
+    .success-card {
+        background: white;
+        border-radius: 8px;
+        padding: 2rem;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .success-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+    }
+    .success-title {
+        color: #28a745;
+        margin-bottom: 1rem;
+    }
+    .file-info {
+        background: #f8f9fa;
+        border-radius: 6px;
+        padding: 1rem;
+        margin: 1rem 0;
+    }
+    .file-url {
+        word-break: break-all;
+        background: #e9ecef;
+        padding: 0.5rem;
+        border-radius: 4px;
+        font-family: monospace;
+        margin: 0.5rem 0;
+    }
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-top: 2rem;
+    }
+    .btn {
+        padding: 10px 20px;
+        border-radius: 6px;
+        text-decoration: none;
+        font-weight: 500;
+        transition: background 0.2s;
+    }
+    .btn-primary {
+        background: #007bff;
+        color: white;
+    }
+    .btn-primary:hover {
+        background: #0056b3;
+    }
+    .btn-secondary {
+        background: #6c757d;
+        color: white;
+    }
+    .btn-secondary:hover {
+        background: #545b62;
+    }
+</style>
+{{end}}
+
+{{define "content"}}
+<div class="success-container">
+    <div class="success-card">
+        <div class="success-icon">🎉</div>
+        <h1 class="success-title">Upload Successful!</h1>
+        
+        {{if .FileInfo}}
+        <div class="file-info">
+            <h3>📁 File Details</h3>
+            <p><strong>Filename:</strong> {{.FileInfo.Name}}</p>
+            <p><strong>Size:</strong> {{.FileInfo.SizeFormatted}}</p>
+            <p><strong>Type:</strong> {{.FileInfo.ContentType}}</p>
+            <p><strong>Uploaded:</strong> {{.FileInfo.UploadTime}}</p>
+        </div>
+        
+        {{if .FileInfo.URL}}
+        <div class="file-info">
+            <h3>🔗 File URL</h3>
+            <div class="file-url">{{.FileInfo.URL}}</div>
+            <button onclick="copyToClipboard('{{.FileInfo.URL}}')" class="btn btn-secondary">
+                📋 Copy URL
+            </button>
+        </div>
+        {{end}}
+        {{end}}
+        
+        <div class="action-buttons">
+            <a href="/upload" class="btn btn-primary">📷 Upload Another</a>
+            <a href="/" class="btn btn-secondary">🏠 Go Home</a>
+        </div>
+    </div>
+</div>
+{{end}}
+
+{{define "scripts"}}
+<script>
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(function() {
+        alert('✅ URL copied to clipboard!');
+    }, function(err) {
+        console.error('Could not copy text: ', err);
+        // Fallback for older browsers
+        const textArea = document.createElement("textarea");
+        textArea.value = text;
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        try {
+            document.execCommand('copy');
+            alert('✅ URL copied to clipboard!');
+        } catch (err) {
+            alert('❌ Failed to copy URL');
+        }
+        document.body.removeChild(textArea);
+    });
+}
+</script>
+{{end}}

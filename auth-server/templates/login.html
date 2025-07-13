@@ -1,0 +1,54 @@
+{{define "head"}}
+<style>
+    .auth-container {
+        max-width: 400px;
+        margin: 2rem auto;
+        padding: 2rem;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .auth-title {
+        text-align: center;
+        margin-bottom: 2rem;
+        color: #333;
+    }
+    .auth-description {
+        text-align: center;
+        margin-bottom: 2rem;
+        color: #666;
+        line-height: 1.5;
+    }
+    .google-login-btn {
+        display: block;
+        width: 100%;
+        padding: 12px;
+        background: #4285f4;
+        color: white;
+        text-decoration: none;
+        border-radius: 6px;
+        text-align: center;
+        font-weight: 500;
+        transition: background 0.2s;
+    }
+    .google-login-btn:hover {
+        background: #3367d6;
+    }
+</style>
+{{end}}
+
+{{define "content"}}
+<div class="auth-container">
+    <h1 class="auth-title">🔐 Authentication Server</h1>
+    <p class="auth-description">
+        This is the authentication server for our Google S3 Uploader app. 
+        Click below to login with your Google account.
+    </p>
+    <a href="/auth/google/login" class="google-login-btn">
+        🔑 Login with Google
+    </a>
+</div>
+{{end}}
+
+{{define "scripts"}}
+{{end}}

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Successful - Google S3 Uploader</title>
+    <link rel="stylesheet" href="../shared/static/css/style.css">
+    <style>
+        /* Inline styles from success.html template */
+        .success-container {
+            max-width: 600px;
+            margin: 2rem auto;
+            padding: 2rem;
+            text-align: center;
+        }
+        .success-card {
+            background: white;
+            border-radius: 8px;
+            padding: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .success-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+        .success-title {
+            color: #28a745;
+            margin-bottom: 1rem;
+        }
+        .file-info {
+            background: #f8f9fa;
+            border-radius: 6px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+        .file-url {
+            word-break: break-all;
+            background: #e9ecef;
+            padding: 0.5rem;
+            border-radius: 4px;
+            font-family: monospace;
+            margin: 0.5rem 0;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+        .btn {
+            padding: 10px 20px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+        .btn-primary {
+            background: #007bff;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #0056b3;
+        }
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        .btn-secondary:hover {
+            background: #545b62;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header Component - Authenticated State -->
+    <header class="header">
+        <nav class="navbar">
+            <div class="nav-container">
+                <div class="nav-brand">
+                    <h1>🚀 Google S3 Uploader</h1>
+                </div>
+                <div class="nav-menu">
+                    <div class="nav-user">
+                        <span class="user-info">👋 Hello, John Doe!</span>
+                        <a href="/logout" class="nav-link">Logout</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="main-content">
+        <!-- Success Flash Message -->
+        <div class="flash-message flash-success">
+            🎉 File uploaded successfully to AWS S3!
+        </div>
+
+        <!-- Success Page Content -->
+        <div class="success-container">
+            <div class="success-card">
+                <div class="success-icon">🎉</div>
+                <h1 class="success-title">Upload Successful!</h1>
+                
+                <div class="file-info">
+                    <h3>📁 File Details</h3>
+                    <p><strong>Filename:</strong> sample-image.jpg</p>
+                    <p><strong>Size:</strong> 2.5 MB</p>
+                    <p><strong>Type:</strong> image/jpeg</p>
+                    <p><strong>Uploaded:</strong> July 12, 2025 at 10:30 AM</p>
+                </div>
+                
+                <div class="file-info">
+                    <h3>🔗 File URL</h3>
+                    <div class="file-url">https://my-s3-bucket.s3.amazonaws.com/uploads/sample-image.jpg</div>
+                    <button onclick="copyToClipboard('https://my-s3-bucket.s3.amazonaws.com/uploads/sample-image.jpg')" class="btn btn-secondary">
+                        📋 Copy URL
+                    </button>
+                </div>
+                
+                <div class="action-buttons">
+                    <a href="preview-upload.html" class="btn btn-primary">📷 Upload Another</a>
+                    <a href="preview-home.html" class="btn btn-secondary">🏠 Go Home</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer Component -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-content">
+                <p>&copy; 2025 Google S3 Uploader. Built with Go 💙</p>
+                <div class="footer-links">
+                    <a href="https://golang.org" target="_blank">Go Lang</a>
+                    <a href="https://aws.amazon.com/s3/" target="_blank">AWS S3</a>
+                    <a href="https://developers.google.com/identity" target="_blank">Google OAuth</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../shared/static/js/app.js"></script>
+    
+    <script>
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(function() {
+        alert('✅ URL copied to clipboard!');
+    }, function(err) {
+        console.error('Could not copy text: ', err);
+        // Fallback for older browsers
+        const textArea = document.createElement("textarea");
+        textArea.value = text;
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        try {
+            document.execCommand('copy');
+            alert('✅ URL copied to clipboard!');
+        } catch (err) {
+            alert('❌ Failed to copy URL');
+        }
+        document.body.removeChild(textArea);
+    });
+}
+    </script>
+</body>
+</html>

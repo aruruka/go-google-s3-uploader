@@ -1,0 +1,140 @@
+name: Deploy to AWS App Runner
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+  pull_request:
+    branches: [main]
+
+env:
+  AWS_REGION: ap-northeast-1
+  APP_RUNNER_SERVICE_NAME: go-s3-uploader-service
+
+permissions:
+  id-token: write   # Required for OIDC
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.24'
+
+      - name: Run tests
+        working-directory: ./app-server
+        run: |
+          go mod tidy
+          go test ./...
+
+      - name: Build application
+        working-directory: ./app-server
+        run: |
+          go build -o main .
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Extract tag name
+        id: get_tag
+        run: echo "TAG=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+      - name: Validate tag format
+        run: |
+          TAG="${{ steps.get_tag.outputs.TAG }}"
+          REGEX="^v([0-9]{1,2})\.([0-9]{1,2})\.([0-9]{1,2})$"
+          if [[ $TAG =~ $REGEX ]]; then
+            echo "✅ Tag '${TAG}' matches the required format."
+          else
+            echo "❌ ERROR: Tag '${TAG}' does not match the required format 'vX.X.X' (e.g., v1.0.0)."
+            exit 1
+          fi
+
+      # 方案1: 使用 OIDC (推荐)
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          role-session-name: GitHubActionsSession
+          aws-region: ${{ env.AWS_REGION }}
+
+      # 方案2: 使用 Secrets (备选)
+      # - name: Configure AWS credentials (Secrets)
+      #   uses: aws-actions/configure-aws-credentials@v4
+      #   with:
+      #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #     aws-region: ${{ env.AWS_REGION }}
+
+      - name: Deploy to App Runner
+        run: |
+          # 尝试更新现有服务，如果不存在则创建新服务
+          echo "🚀 Deploying to AWS App Runner..."
+          
+          # 检查服务是否存在
+          if aws apprunner describe-service --service-arn "arn:aws:apprunner:${{ env.AWS_REGION }}:925867211284:service/${{ env.APP_RUNNER_SERVICE_NAME }}" 2>/dev/null; then
+            echo "✅ Service exists, triggering deployment..."
+            aws apprunner start-deployment --service-arn "arn:aws:apprunner:${{ env.AWS_REGION }}:925867211284:service/${{ env.APP_RUNNER_SERVICE_NAME }}"
+            SERVICE_ARN="arn:aws:apprunner:${{ env.AWS_REGION }}:925867211284:service/${{ env.APP_RUNNER_SERVICE_NAME }}"
+          else
+            echo "🆕 Service does not exist, creating new service..."
+            
+            # 创建服务配置JSON
+            cat > service-config.json << EOF
+            {
+              "ServiceName": "${{ env.APP_RUNNER_SERVICE_NAME }}",
+              "SourceConfiguration": {
+                "AutoDeploymentsEnabled": true,
+                "CodeRepository": {
+                  "RepositoryUrl": "https://github.com/${{ github.repository }}",
+                  "SourceCodeVersion": {
+                    "Type": "BRANCH",
+                    "Value": "main"
+                  },
+                  "CodeConfiguration": {
+                    "ConfigurationSource": "CONFIGURATION_FILE"
+                  }
+                }
+              },
+              "InstanceConfiguration": {
+                "Cpu": "0.25 vCPU",
+                "Memory": "0.5 GB",
+                "InstanceRoleArn": "arn:aws:iam::925867211284:role/AppRunnerInstanceRole"
+              },
+              "HealthCheckConfiguration": {
+                "Protocol": "HTTP",
+                "Path": "/health",
+                "Interval": 30,
+                "Timeout": 5,
+                "HealthyThreshold": 2,
+                "UnhealthyThreshold": 3
+              }
+            }
+            EOF
+            
+            # 创建服务
+            CREATE_RESULT=$(aws apprunner create-service --cli-input-json file://service-config.json)
+            SERVICE_ARN=$(echo $CREATE_RESULT | jq -r '.Service.ServiceArn')
+            echo "SERVICE_ARN=$SERVICE_ARN" >> $GITHUB_ENV
+          fi
+          
+          # 等待部署完成
+          echo "⏳ Waiting for service to be ready..."
+          aws apprunner wait service-ready --service-arn $SERVICE_ARN
+          
+          # 获取服务URL
+          echo "🌐 Getting service URL..."
+          SERVICE_URL=$(aws apprunner describe-service --service-arn $SERVICE_ARN --query 'Service.ServiceUrl' --output text)
+          echo "✅ Service deployed successfully at: https://$SERVICE_URL"

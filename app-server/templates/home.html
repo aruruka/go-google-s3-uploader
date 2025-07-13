@@ -1,0 +1,104 @@
+{{define "head"}}
+<style>
+    .home-container {
+        max-width: 800px;
+        margin: 2rem auto;
+        padding: 2rem;
+    }
+    .welcome-section {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+    .app-title {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+        color: #333;
+    }
+    .app-description {
+        font-size: 1.2rem;
+        color: #666;
+        line-height: 1.6;
+        margin-bottom: 2rem;
+    }
+    .action-card {
+        background: white;
+        border-radius: 8px;
+        padding: 2rem;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
+    }
+    .upload-btn {
+        display: inline-block;
+        padding: 12px 24px;
+        background: #007bff;
+        color: white;
+        text-decoration: none;
+        border-radius: 6px;
+        font-weight: 500;
+        transition: background 0.2s;
+    }
+    .upload-btn:hover {
+        background: #0056b3;
+    }
+    .auth-notice {
+        background: #fff3cd;
+        border: 1px solid #ffeaa7;
+        border-radius: 6px;
+        padding: 1rem;
+        color: #856404;
+    }
+    .feature-list {
+        list-style: none;
+        padding: 0;
+    }
+    .feature-list li {
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #eee;
+    }
+    .feature-list li:last-child {
+        border-bottom: none;
+    }
+</style>
+{{end}}
+
+{{define "content"}}
+<div class="home-container">
+    <div class="welcome-section">
+        <h1 class="app-title">📱 Google S3 Uploader</h1>
+        <p class="app-description">
+            Upload your images to AWS S3 using secure Google authentication.
+            A modern, cloud-native application built with Go.
+        </p>
+    </div>
+
+    {{if .User}}
+    <div class="action-card">
+        <h2>🚀 Ready to Upload</h2>
+        <p>Welcome back, {{.User.Name}}! You're authenticated and ready to upload files.</p>
+        <a href="/upload" class="upload-btn">📷 Go to Upload Page</a>
+    </div>
+    {{else}}
+    <div class="auth-notice">
+        <h3>🔐 Authentication Required</h3>
+        <p>Please authenticate with Google first via our Auth Server to start uploading files.</p>
+        <a href="http://localhost:8081/" class="upload-btn" style="background: #28a745;">
+            Login with Google
+        </a>
+    </div>
+    {{end}}
+
+    <div class="action-card">
+        <h2>✨ Features</h2>
+        <ul class="feature-list">
+            <li>🔒 Secure Google OAuth 2.0 authentication</li>
+            <li>☁️ Direct upload to AWS S3</li>
+            <li>🖼️ Support for multiple image formats</li>
+            <li>📱 Responsive design</li>
+            <li>⚡ Fast and lightweight</li>
+        </ul>
+    </div>
+</div>
+{{end}}
+
+{{define "scripts"}}
+{{end}}

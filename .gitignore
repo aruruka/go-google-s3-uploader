@@ -1,0 +1,225 @@
+# 🔒 Security & Credentials
+# =========================
+
+# OAuth credentials and client secrets
+OAuth-Credentials/
+*.json
+!cloudformation/*.json
+!**/go.mod
+!**/go.sum
+
+# Environment files
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+.env.*
+!.env.example
+
+# AWS credentials
+.aws/
+aws-credentials
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+*.csr
+
+# AWS configuration files with real values
+s3-bucket-policy.json
+s3-write-policy.json
+terraform.tfvars
+terraform.tfvars.json
+
+# SSH keys
+id_rsa*
+id_ed25519*
+*.pub
+
+# API keys and tokens
+*secret*
+*credential*
+*token*
+*apikey*
+!test-*  # Allow test files
+
+# Scripts with hardcoded credentials (backup)
+*-with-secrets.sh
+*-credentials.sh
+local-env.sh
+
+# Database credentials
+database.url
+db.conf
+
+# 🔧 Build & Runtime
+# ==================
+
+# Go build artifacts
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+vendor/
+go.work
+go.work.sum
+
+# Test coverage
+*.out
+coverage.html
+
+# Binary files
+app-server-binary
+auth-server-binary
+app-server/app-server
+auth-server/auth-server
+main
+
+# 🗂️ IDE & Editor
+# ================
+
+# Serena (AI coding assistant)
+.serena/
+
+# AI coding assistants (personal configurations)
+*copilot-instructions*
+*ai-instructions*
+*coding-assistant*
+.cursor/
+.continue/
+*cline-instructions*
+
+# VS Code
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# GoLand/IntelliJ
+.idea/
+*.iml
+*.iws
+
+# Vim
+*.swp
+*.swo
+*~
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+
+# 🐳 Docker & Deployment
+# =======================
+
+# Docker
+.dockerignore
+
+# Logs
+*.log
+logs/
+*.log.*
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Temporary files
+tmp/
+temp/
+.tmp/
+
+# 📦 Package managers
+# ===================
+
+# Node.js (if any frontend tools)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# 🧪 Testing
+# ===========
+
+# Test results
+test-results/
+*.test
+*.prof
+
+# Integration test data
+integration-test/
+test-uploads/
+
+# 🌩️ Cloud & Infrastructure
+# ===========================
+
+# Terraform
+*.tfstate
+*.tfstate.*
+.terraform/
+terraform.tfvars
+terraform.tfvars.json
+
+# AWS
+.aws/
+
+# Local development
+local/
+.local/
+
+# 🔄 Version Control
+# ==================
+
+# Git
+.git/
+*.orig
+
+# 📱 OS Generated
+# ===============
+
+# macOS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Linux
+*~
+.directory
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# 🎯 Project Specific
+# ===================
+
+# Uploaded files (if any local testing)
+uploads/
+static/uploads/
+
+# Configuration backups
+*.conf.bak
+*.config.bak
+
+# Local scripts
+local-*.sh
+private-*.sh
+
+# Documentation drafts
+*.draft.md
+NOTES.md
+TODO.md
