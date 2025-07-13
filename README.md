@@ -96,3 +96,4 @@ go run main.go
   - `golang.org/x/oauth2`
   - `github.com/coreos/go-oidc/v3`
   - `github.com/aws/aws-sdk-go-v2`
+# Deployment Test
