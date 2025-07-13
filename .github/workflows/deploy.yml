@@ -13,6 +13,7 @@ env:
   APP_RUNNER_SERVICE_NAME: go-s3-uploader-service
   ECR_REGISTRY: 925867211284.dkr.ecr.ap-northeast-1.amazonaws.com
   ECR_REPOSITORY: go-s3-uploader
+  APP_RUNNER_ACCESS_ROLE_ARN: arn:aws:iam::925867211284:role/AppRunnerECRAccessRole
 
 permissions:
   id-token: write   # Required for OIDC
@@ -161,7 +162,8 @@ jobs:
                           "S3_BUCKET_NAME": "raymond-go-s3-uploader-dev-2025"
                         }
                       },
-                      "ImageRepositoryType": "ECR"
+                      "ImageRepositoryType": "ECR",
+                      "AccessRoleArn": "${{ env.APP_RUNNER_ACCESS_ROLE_ARN }}"
                     }
                   }
                 }' > update-config.json
@@ -192,7 +194,8 @@ jobs:
                       "S3_BUCKET_NAME": "raymond-go-s3-uploader-dev-2025"
                     }
                   },
-                  "ImageRepositoryType": "ECR"
+                  "ImageRepositoryType": "ECR",
+                  "AccessRoleArn": "${{ env.APP_RUNNER_ACCESS_ROLE_ARN }}"
                 }
               },
               "InstanceConfiguration": {
