@@ -3,6 +3,9 @@ package templates
 import (
 	"bytes"
 	"testing"
+	"time"
+
+	"app-server/pkg/models"
 )
 
 // Test NewTemplateRenderer
@@ -46,8 +49,22 @@ func TestTemplateRenderer_RenderTemplate(t *testing.T) {
 		{
 			name:         "success template",
 			templateName: "success.html",
-			data:         map[string]interface{}{"Title": "Test Success"},
-			expectError:  false,
+			data: &models.PageData{
+				Title: "Test Success",
+				User: &models.User{
+					Name: "Test User",
+				},
+				Data: &models.SuccessData{
+					Upload: &models.FileUpload{
+						Filename:    "test.jpg",
+						Size:        1024,
+						ContentType: "image/jpeg",
+						S3URL:       "https://example.com/test.jpg",
+						UploadedAt:  time.Now(),
+					},
+				},
+			},
+			expectError: false,
 		},
 		{
 			name:         "error template",
