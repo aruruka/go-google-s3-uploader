@@ -97,3 +97,11 @@ go run main.go
   - `github.com/coreos/go-oidc/v3`
   - `github.com/aws/aws-sdk-go-v2`
 # Deployment Test
+# Test deployment with updated IAM permissions
+
+Permission Update Details:
+- Added `iam:CreateServiceLinkedRole` permission
+- Allows App Runner to automatically create the necessary service-linked role when the first service is created in the account
+- Fixed previous access denied error
+
+You should now be able to successfully create App Runner services.
