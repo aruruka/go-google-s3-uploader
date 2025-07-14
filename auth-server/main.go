@@ -62,23 +62,30 @@ func main() {
 	log.Fatal(http.ListenAndServe(":8081", mux))
 }
 
-// setDefaultEnvVars sets default environment variables for development
 func setDefaultEnvVars() {
+	isProduction := os.Getenv("ENV") == "production"
+
 	if os.Getenv("GOOGLE_CLIENT_ID") == "" {
 		log.Println("⚠️  GOOGLE_CLIENT_ID not set - OAuth will not work")
-		os.Setenv("GOOGLE_CLIENT_ID", "your-google-client-id")
+		if !isProduction {
+			os.Setenv("GOOGLE_CLIENT_ID", "your-google-client-id")
+		}
 	}
 	if os.Getenv("GOOGLE_CLIENT_SECRET") == "" {
 		log.Println("⚠️  GOOGLE_CLIENT_SECRET not set - OAuth will not work")
-		os.Setenv("GOOGLE_CLIENT_SECRET", "your-google-client-secret")
+		if !isProduction {
+			os.Setenv("GOOGLE_CLIENT_SECRET", "your-google-client-secret")
+		}
 	}
 	if os.Getenv("REDIRECT_URL") == "" {
+		if isProduction {
+			log.Fatal("REDIRECT_URL environment variable is required in production")
+		}
 		os.Setenv("REDIRECT_URL", "http://localhost:8081/auth/callback")
 		log.Println("📍 Using default redirect URL: http://localhost:8081/auth/callback")
 	}
 }
 
-// redirectToLogin redirects root requests to login page
 func redirectToLogin(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path == "/" {
 		http.Redirect(w, r, "/login", http.StatusTemporaryRedirect)
@@ -87,7 +94,6 @@ func redirectToLogin(w http.ResponseWriter, r *http.Request) {
 	http.NotFound(w, r)
 }
 
-// healthCheck provides a simple health check endpoint
 func healthCheck(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	fmt.Fprint(w, `{"status":"healthy","service":"auth-server"}`)
