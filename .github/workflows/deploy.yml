@@ -162,7 +162,11 @@ jobs:
                         "RuntimeEnvironmentVariables": {
                           "PORT": "8080",
                           "AWS_REGION": "${{ env.AWS_REGION }}",
-                          "S3_BUCKET_NAME": "raymond-go-s3-uploader-dev-2025"
+                          "S3_BUCKET_NAME": "raymond-go-s3-uploader-dev-2025",
+                          "GOOGLE_CLIENT_ID": "${{ secrets.PROD_GOOGLE_CLIENT_ID }}",
+                          "GOOGLE_CLIENT_SECRET": "${{ secrets.PROD_GOOGLE_CLIENT_SECRET }}",
+                          "REDIRECT_URL": "${{ secrets.PROD_REDIRECT_URL }}",
+                          "APP_SERVER_URL": "${{ secrets.PROD_APP_SERVER_URL }}"
                         }
                       },
                       "ImageRepositoryType": "ECR"
@@ -196,7 +200,11 @@ jobs:
                     "RuntimeEnvironmentVariables": {
                       "PORT": "8080",
                       "AWS_REGION": "${{ env.AWS_REGION }}",
-                      "S3_BUCKET_NAME": "raymond-go-s3-uploader-dev-2025"
+                      "S3_BUCKET_NAME": "raymond-go-s3-uploader-dev-2025",
+                      "GOOGLE_CLIENT_ID": "${{ secrets.PROD_GOOGLE_CLIENT_ID }}",
+                      "GOOGLE_CLIENT_SECRET": "${{ secrets.PROD_GOOGLE_CLIENT_SECRET }}",
+                      "REDIRECT_URL": "${{ secrets.PROD_REDIRECT_URL }}",
+                      "APP_SERVER_URL": "${{ secrets.PROD_APP_SERVER_URL }}"
                     }
                   },
                   "ImageRepositoryType": "ECR"

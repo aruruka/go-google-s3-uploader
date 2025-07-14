@@ -24,6 +24,14 @@ type AppHandlerIface interface {
 	HandleSuccess(w http.ResponseWriter, r *http.Request)
 }
 
+     // getAuthServerURL returns the auth server base URL from env or fallback to localhost
+     func getAuthServerURL() string {
+     	url := os.Getenv("AUTH_SERVER_URL")
+     	if url == "" {
+     		url = "http://localhost:8081"
+     	}
+     	return url
+     }
 // AppHandler implements application handlers
 type AppHandler struct {
 	renderer templates.TemplateRendererIface
@@ -47,7 +55,7 @@ func (h *AppHandler) HandleHome(w http.ResponseWriter, r *http.Request) {
 	if user == nil {
 		log.Printf("❌ No user session found, redirecting to auth-server")
 		// Redirect to auth server for login
-		http.Redirect(w, r, "http://localhost:8081/login", http.StatusTemporaryRedirect)
+		http.Redirect(w, r, getAuthServerURL()+"/login", http.StatusTemporaryRedirect)
 		return
 	}
 
@@ -78,7 +86,7 @@ func (h *AppHandler) HandleUpload(w http.ResponseWriter, r *http.Request) {
 	user := h.getUserFromSession(r)
 	if user == nil {
 		// Redirect to auth server for login
-		http.Redirect(w, r, "http://localhost:8081/login", http.StatusTemporaryRedirect)
+		http.Redirect(w, r, getAuthServerURL()+"/login", http.StatusTemporaryRedirect)
 		return
 	}
 
@@ -184,7 +192,7 @@ func (h *AppHandler) HandleSuccess(w http.ResponseWriter, r *http.Request) {
 	// Check if user is authenticated
 	user := h.getUserFromSession(r)
 	if user == nil {
-		http.Redirect(w, r, "http://localhost:8081/login", http.StatusTemporaryRedirect)
+		http.Redirect(w, r, getAuthServerURL()+"/login", http.StatusTemporaryRedirect)
 		return
 	}
 
