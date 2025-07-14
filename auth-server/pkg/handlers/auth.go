@@ -10,7 +10,7 @@ import (
 	"net/http"
 	"time"
 
-	"auth-server/pkg/config" // Import the new config package
+	"auth-server/pkg/config"
 	"auth-server/pkg/models"
 	"auth-server/pkg/oauth"
 	"auth-server/pkg/templates"
@@ -66,8 +66,9 @@ func (h *AuthHandler) HandleGoogleAuth(w http.ResponseWriter, r *http.Request) {
 		Value:    state,
 		Expires:  time.Now().Add(10 * time.Minute),
 		HttpOnly: true,
-		Secure:   false, // Temporarily change to false for debugging
+		Secure:   true, // Change back to true for HTTPS
 		SameSite: http.SameSiteLaxMode,
+		Domain:   h.appConfig.ServiceDomain, // Set domain for cross-subdomain cookie
 	})
 
 	authURL := h.oauthConfig.GetAuthURL(state)
@@ -163,9 +164,10 @@ func (h *AuthHandler) HandleCallback(w http.ResponseWriter, r *http.Request) {
 		Value:    base64.StdEncoding.EncodeToString(userJSON),
 		Expires:  time.Now().Add(24 * time.Hour),
 		HttpOnly: false,
-		Secure:   false, // Temporarily change to false for debugging
+		Secure:   true, // Change back to true for HTTPS
 		SameSite: http.SameSiteLaxMode,
 		Path:     "/",
+		Domain:   h.appConfig.ServiceDomain, // Set domain for cross-subdomain cookie
 	}
 
 	log.Printf("🍪 Setting cookie: %s", cookie.String())

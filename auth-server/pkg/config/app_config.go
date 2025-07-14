@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"log"
+	"net/url" // Import net/url
 	"os"
 )
 
@@ -17,6 +18,7 @@ type AppConfig struct {
 	GoogleClientSecret string
 	RedirectURL        string
 	AppServerURL       string
+	ServiceDomain      string // The base domain of the App Runner service (e.g., fpdevmcqq2.ap-northeast-1.awsapprunner.com)
 }
 
 // LoadConfig loads configuration from environment variables.
@@ -39,6 +41,18 @@ func LoadConfig() (*AppConfig, error) {
 	cfg.GoogleClientSecret = os.Getenv("GOOGLE_CLIENT_SECRET")
 	cfg.RedirectURL = os.Getenv("REDIRECT_URL")
 	cfg.AppServerURL = os.Getenv("APP_SERVER_URL")
+
+	// Parse AppServerURL to extract the domain for cookie settings
+	if cfg.AppServerURL != "" {
+		parsedURL, err := url.Parse(cfg.AppServerURL)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse APP_SERVER_URL: %w", err)
+		}
+		cfg.ServiceDomain = parsedURL.Host
+	} else {
+		// If AppServerURL is not set, ServiceDomain will also be empty, which is fine for local dev
+		cfg.ServiceDomain = ""
+	}
 
 	// Set default values for development if not in production
 	isProduction := cfg.Env == "production"
@@ -90,8 +104,8 @@ func LoadConfig() (*AppConfig, error) {
 	}
 
 	// Log loaded configuration (excluding secrets)
-	log.Printf("Loaded Configuration: ENV=%s, PortAuthServer=%s, PortAppServer=%s, AWS_REGION=%s, S3_BUCKET_NAME=%s, RedirectURL=%s, AppServerURL=%s",
-		cfg.Env, cfg.PortAuthServer, cfg.PortAppServer, cfg.AWSRegion, cfg.S3BucketName, cfg.RedirectURL, cfg.AppServerURL)
+	log.Printf("Loaded Configuration: ENV=%s, PortAuthServer=%s, PortAppServer=%s, AWS_REGION=%s, S3_BUCKET_NAME=%s, RedirectURL=%s, AppServerURL=%s, ServiceDomain=%s",
+		cfg.Env, cfg.PortAuthServer, cfg.PortAppServer, cfg.AWSRegion, cfg.S3BucketName, cfg.RedirectURL, cfg.AppServerURL, cfg.ServiceDomain)
 
 	return cfg, nil
 }
