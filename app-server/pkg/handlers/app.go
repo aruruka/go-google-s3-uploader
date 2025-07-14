@@ -48,6 +48,12 @@ func (h *AppHandler) HandleHome(w http.ResponseWriter, r *http.Request) {
 	user := h.getUserFromSession(r)
 	if user == nil {
 		log.Printf("❌ No user session found, redirecting to auth-server")
+		
+		// 🔍 Debug: Print configuration values for investigation
+		log.Printf("🔍 DEBUG - AuthServerURL: %s", h.appConfig.AuthServerURL)
+		log.Printf("🔍 DEBUG - AppServerURL: %s", h.appConfig.AppServerURL)
+		log.Printf("🔍 DEBUG - URLs equal? %v", h.appConfig.AuthServerURL == h.appConfig.AppServerURL)
+		
 		// Check if AuthServerURL is the same as our domain (App Runner scenario)
 		if h.appConfig.AuthServerURL == h.appConfig.AppServerURL {
 			// Internal redirect to login page within the same service
@@ -55,6 +61,7 @@ func (h *AppHandler) HandleHome(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/login", http.StatusTemporaryRedirect)
 		} else {
 			// External redirect to separate auth server (local development)
+			log.Printf("🔄 External redirect to: %s/login (different domains)", h.appConfig.AuthServerURL)
 			http.Redirect(w, r, h.appConfig.AuthServerURL+"/login", http.StatusTemporaryRedirect)
 		}
 		return
