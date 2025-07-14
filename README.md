@@ -96,6 +96,90 @@ go run main.go
   - `golang.org/x/oauth2`
   - `github.com/coreos/go-oidc/v3`
   - `github.com/aws/aws-sdk-go-v2`
+
+## End-to-End DevOps Architecture
+
+```
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│  Local Dev      │    │  GitHub Actions │    │  AWS App Runner │
+│  Environment    │    │  CI/CD Pipeline │    │  Production     │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+         │                       │                       │
+         │ git push              │                       │
+         ├──────────────────────>│                       │
+         │                       │ 1. Build Docker       │
+         │                       │ 2. Push to ECR        │
+         │                       │ 3. Deploy to App Runner│
+         │                       ├──────────────────────>│
+         │                       │                       │
+         │                       │                       │
+    ┌────┴────┐              ┌───┴───┐              ┌────┴────┐
+    │Auth:8081│              │ Docker│              │Combined │
+    │App :8080│              │ Image │              │Service  │
+    └─────────┘              └───────┘              └─────────┘
+```
+
+### 🌟 **Code Flexibility Highlight**
+
+**Same Codebase, Multiple Deployment Models:**
+
+- **Local Development**: Run as separate microservices (auth-server:8081, app-server:8080)
+- **App Runner Production**: Run as combined service (single container, all routes)
+- **Smart Environment Detection**: Code automatically adapts based on environment variables
+- **Zero Code Changes**: Deploy to production without modifying application logic
+
+## Deployment Challenges & Solutions
+
+### 1. OAuth Redirect URL Issue ❌➡️✅
+**Problem**: Initial deployment redirected to `http://localhost:8081/auth/callback`
+- **Root Cause**: Environment not set to production
+- **Solution**: Added `ENV=production` in GitHub Actions workflow
+- **Fix**: Environment-aware URL configuration
+
+### 2. "Too Many Redirects" Loop ❌➡️✅
+**Problem**: Redirect loop between `/` and `/login` on App Runner
+- **Root Cause**: App Runner single-container limitation vs microservice architecture
+- **Solution**: Smart redirect detection for same-domain scenarios
+- **Implementation**: Combined service with internal routing logic
+
+### 3. S3 Permission Denied ❌➡️✅
+**Problem**: Application couldn't upload files to S3
+- **Root Cause**: App Runner instance role not configured for S3 access
+- **Solution**: Created separate IAM roles (ECR access + S3 instance role)
+- **AWS Config**: Proper trust policies for `tasks.apprunner.amazonaws.com`
+
+### 4. Missing Environment Variables ❌➡️✅
+**Problem**: Authentication flow broken due to missing `AUTH_SERVER_URL`
+- **Root Cause**: App Runner environment variables incomplete
+- **Solution**: Added all required environment variables via GitHub Actions
+- **Variables**: `AUTH_SERVER_URL`, `APP_SERVER_URL`, `REDIRECT_URL`
+
+## Architecture Evolution
+
+### Local Development (Microservices)
+```
+┌─────────────────┐    ┌─────────────────┐
+│   Auth Server   │    │   App Server    │
+│   Port 8081     │    │   Port 8080     │
+│   ┌─────────┐   │    │   ┌─────────┐   │
+│   │OAuth    │   │    │   │S3 Upload│   │
+│   │Cookie   │   │    │   │Validate │   │
+│   └─────────┘   │    │   └─────────┘   │
+└─────────────────┘    └─────────────────┘
+```
+
+### App Runner Deployment (Combined)
+```
+┌─────────────────────────────────────────────┐
+│         Combined Service (Port 8080)        │
+│   ┌─────────┐           ┌─────────┐        │
+│   │OAuth    │           │S3 Upload│        │
+│   │Cookie   │  +        │Validate │        │
+│   │Routes   │           │Routes   │        │
+│   └─────────┘           └─────────┘        │
+└─────────────────────────────────────────────┘
+```
+
 # Deployment Test
 # Test deployment with updated IAM permissions
 
