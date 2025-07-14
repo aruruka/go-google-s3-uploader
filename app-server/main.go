@@ -4,21 +4,23 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 
+	"app-server/pkg/config" // Import the new config package
 	"app-server/pkg/handlers"
 	"app-server/pkg/s3"
 	"app-server/pkg/templates"
 )
 
 func main() {
-	// 获取端口配置，默认为8080（App Runner标准）
-	port := os.Getenv("PORT_APP_SERVER") // Use PORT_APP_SERVER
-	if port == "" {
-		port = "8080"
+	fmt.Println("📱 App Server Starting...")
+
+	// Load application configuration
+	appConfig, err := config.LoadConfig()
+	if err != nil {
+		log.Fatalf("Failed to load application configuration: %v", err)
 	}
 
-	fmt.Printf("📱 App Server Starting on :%s\n", port)
+	fmt.Printf("📱 App Server Starting on :%s\n", appConfig.PortAppServer)
 
 	// Initialize template renderer
 	renderer, err := templates.NewTemplateRenderer()
@@ -33,7 +35,7 @@ func main() {
 	}
 
 	// Initialize handlers
-	appHandler := handlers.NewAppHandler(renderer, s3Client)
+	appHandler := handlers.NewAppHandler(appConfig, renderer, s3Client) // Pass appConfig
 
 	// Define routes
 	http.HandleFunc("/", appHandler.HandleHome)
@@ -70,8 +72,8 @@ func main() {
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("../shared/static/"))))
 
 	fmt.Println("✅ App Server ready")
-	fmt.Printf("🌐 Visit: http://localhost:%s\n", port)
+	fmt.Printf("🌐 Visit: %s\n", appConfig.AppServerURL) // Use AppServerURL for visit message
 
 	// Start server
-	log.Fatal(http.ListenAndServe(":"+port, nil))
+	log.Fatal(http.ListenAndServe(":"+appConfig.PortAppServer, nil))
 }

@@ -7,10 +7,10 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 	"strconv"
 	"time"
 
+	"app-server/pkg/config"
 	"app-server/pkg/models"
 	"app-server/pkg/s3"
 	"app-server/pkg/templates"
@@ -24,25 +24,19 @@ type AppHandlerIface interface {
 	HandleSuccess(w http.ResponseWriter, r *http.Request)
 }
 
-     // getAuthServerURL returns the auth server base URL from env or fallback to localhost
-     func getAuthServerURL() string {
-     	url := os.Getenv("AUTH_SERVER_URL")
-     	if url == "" {
-     		url = "http://localhost:8081"
-     	}
-     	return url
-     }
 // AppHandler implements application handlers
 type AppHandler struct {
-	renderer templates.TemplateRendererIface
-	s3Client s3.S3ClientIface
+	appConfig *config.AppConfig // Add appConfig
+	renderer  templates.TemplateRendererIface
+	s3Client  s3.S3ClientIface
 }
 
 // NewAppHandler creates a new application handler
-func NewAppHandler(renderer templates.TemplateRendererIface, s3Client s3.S3ClientIface) AppHandlerIface {
+func NewAppHandler(appConfig *config.AppConfig, renderer templates.TemplateRendererIface, s3Client s3.S3ClientIface) AppHandlerIface {
 	return &AppHandler{
-		renderer: renderer,
-		s3Client: s3Client,
+		appConfig: appConfig, // Store appConfig
+		renderer:  renderer,
+		s3Client:  s3Client,
 	}
 }
 
@@ -55,7 +49,7 @@ func (h *AppHandler) HandleHome(w http.ResponseWriter, r *http.Request) {
 	if user == nil {
 		log.Printf("❌ No user session found, redirecting to auth-server")
 		// Redirect to auth server for login
-		http.Redirect(w, r, getAuthServerURL()+"/login", http.StatusTemporaryRedirect)
+		http.Redirect(w, r, h.appConfig.AuthServerURL+"/login", http.StatusTemporaryRedirect) // Use appConfig
 		return
 	}
 
@@ -86,7 +80,7 @@ func (h *AppHandler) HandleUpload(w http.ResponseWriter, r *http.Request) {
 	user := h.getUserFromSession(r)
 	if user == nil {
 		// Redirect to auth server for login
-		http.Redirect(w, r, getAuthServerURL()+"/login", http.StatusTemporaryRedirect)
+		http.Redirect(w, r, h.appConfig.AuthServerURL+"/login", http.StatusTemporaryRedirect) // Use appConfig
 		return
 	}
 
@@ -96,7 +90,7 @@ func (h *AppHandler) HandleUpload(w http.ResponseWriter, r *http.Request) {
 		Data: &models.UploadData{
 			MaxFileSize:  50 * 1024 * 1024, // 50 MB
 			AllowedTypes: []string{"image/*", "application/pdf", "application/zip"},
-			S3BucketName: os.Getenv("S3_BUCKET_NAME"),
+			S3BucketName: h.appConfig.S3BucketName, // Use appConfig
 		},
 	}
 
@@ -192,7 +186,7 @@ func (h *AppHandler) HandleSuccess(w http.ResponseWriter, r *http.Request) {
 	// Check if user is authenticated
 	user := h.getUserFromSession(r)
 	if user == nil {
-		http.Redirect(w, r, getAuthServerURL()+"/login", http.StatusTemporaryRedirect)
+		http.Redirect(w, r, h.appConfig.AuthServerURL+"/login", http.StatusTemporaryRedirect) // Use appConfig
 		return
 	}
 
@@ -288,12 +282,12 @@ func (h *AppHandler) getUserFromSession(r *http.Request) *models.User {
 // isValidFileType checks if the content type is allowed
 func (h *AppHandler) isValidFileType(contentType string) bool {
 	allowedTypes := map[string]bool{
-		"image/jpeg":      true,
-		"image/png":       true,
-		"image/gif":       true,
-		"image/webp":      true,
-		"application/pdf": true,
-		"application/zip": true,
+		"image/jpeg":                   true,
+		"image/png":                    true,
+		"image/gif":                    true,
+		"image/webp":                   true,
+		"application/pdf":              true,
+		"application/zip":              true,
 		"application/x-zip-compressed": true,
 	}
 	return allowedTypes[contentType]
