@@ -87,14 +87,6 @@ jobs:
             exit 1
           fi
 
-      # 方案1: 使用 OIDC (推荐) - 需要先配置 AWS OIDC 提供商
-      # - name: Configure AWS credentials (OIDC)
-      #   uses: aws-actions/configure-aws-credentials@v4
-      #   with:
-      #     role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
-      #     role-session-name: GitHubActionsSession
-      #     aws-region: ${{ env.AWS_REGION }}
-
       # 方案2: 使用 Secrets (当前使用)
       - name: Configure AWS credentials (Secrets)
         uses: aws-actions/configure-aws-credentials@v4
@@ -166,7 +158,8 @@ jobs:
                           "GOOGLE_CLIENT_ID": "${{ secrets.PROD_GOOGLE_CLIENT_ID }}",
                           "GOOGLE_CLIENT_SECRET": "${{ secrets.PROD_GOOGLE_CLIENT_SECRET }}",
                           "REDIRECT_URL": "${{ secrets.PROD_REDIRECT_URL }}",
-                          "APP_SERVER_URL": "${{ secrets.PROD_APP_SERVER_URL }}"
+                          "APP_SERVER_URL": "${{ secrets.PROD_APP_SERVER_URL }}",
+                          "ENV": "production"
                         }
                       },
                       "ImageRepositoryType": "ECR"
@@ -204,7 +197,8 @@ jobs:
                       "GOOGLE_CLIENT_ID": "${{ secrets.PROD_GOOGLE_CLIENT_ID }}",
                       "GOOGLE_CLIENT_SECRET": "${{ secrets.PROD_GOOGLE_CLIENT_SECRET }}",
                       "REDIRECT_URL": "${{ secrets.PROD_REDIRECT_URL }}",
-                      "APP_SERVER_URL": "${{ secrets.PROD_APP_SERVER_URL }}"
+                      "APP_SERVER_URL": "${{ secrets.PROD_APP_SERVER_URL }}",
+                      "ENV": "production"
                     }
                   },
                   "ImageRepositoryType": "ECR"
