@@ -24,6 +24,7 @@ app-server/coverage.html
 app-server/coverage.out
 auth-server/.env.production
 auth-server/auth-server
+combined-service
 chore/apprunner-ecr-access-role.json
 chore/apprunner-instance-role-trust-policy.json
 chore/create-github-actions-user.json
