@@ -33,7 +33,7 @@ func main() {
 	}
 
 	// Initialize handlers with dependency injection
-	authHandler := handlers.NewAuthHandler(oauthConfig, renderer)
+	authHandler := handlers.NewAuthHandler(appConfig, oauthConfig, renderer)
 
 	// Setup routes
 	mux := http.NewServeMux()

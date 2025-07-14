@@ -8,9 +8,9 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 	"time"
 
+	"auth-server/pkg/config" // Import the new config package
 	"auth-server/pkg/models"
 	"auth-server/pkg/oauth"
 	"auth-server/pkg/templates"
@@ -24,12 +24,14 @@ type AuthHandlerIface interface {
 }
 
 type AuthHandler struct {
+	appConfig   *config.AppConfig // Add appConfig
 	oauthConfig *oauth.Config
 	renderer    templates.TemplateRendererIface
 }
 
-func NewAuthHandler(oauthConfig *oauth.Config, renderer templates.TemplateRendererIface) AuthHandlerIface {
+func NewAuthHandler(appConfig *config.AppConfig, oauthConfig *oauth.Config, renderer templates.TemplateRendererIface) AuthHandlerIface {
 	return &AuthHandler{
+		appConfig:   appConfig, // Store appConfig
 		oauthConfig: oauthConfig,
 		renderer:    renderer,
 	}
@@ -64,7 +66,7 @@ func (h *AuthHandler) HandleGoogleAuth(w http.ResponseWriter, r *http.Request) {
 		Value:    state,
 		Expires:  time.Now().Add(10 * time.Minute),
 		HttpOnly: true,
-		Secure:   false,
+		Secure:   true, // Change to true for HTTPS
 		SameSite: http.SameSiteLaxMode,
 	})
 
@@ -161,7 +163,7 @@ func (h *AuthHandler) HandleCallback(w http.ResponseWriter, r *http.Request) {
 		Value:    base64.StdEncoding.EncodeToString(userJSON),
 		Expires:  time.Now().Add(24 * time.Hour),
 		HttpOnly: false,
-		Secure:   false,
+		Secure:   true, // Change to true for HTTPS
 		SameSite: http.SameSiteLaxMode,
 		Path:     "/",
 	}
@@ -172,18 +174,8 @@ func (h *AuthHandler) HandleCallback(w http.ResponseWriter, r *http.Request) {
 	log.Printf("✅ User authenticated successfully: %s (%s)", user.Name, user.Email)
 	log.Printf("🔄 Redirecting to app-server...")
 
-	appServerURL := os.Getenv("APP_SERVER_URL")
-	isProduction := os.Getenv("ENV") == "production"
-
-	if appServerURL == "" {
-		if isProduction {
-			log.Fatal("APP_SERVER_URL environment variable is required in production")
-		}
-		appServerURL = "http://localhost:8080"
-		log.Printf("Using default app server URL: %s", appServerURL)
-	}
-
-	http.Redirect(w, r, appServerURL, http.StatusTemporaryRedirect)
+	// Use appConfig.AppServerURL for redirect
+	http.Redirect(w, r, h.appConfig.AppServerURL, http.StatusTemporaryRedirect)
 }
 
 func (h *AuthHandler) HandleLogout(w http.ResponseWriter, r *http.Request) {

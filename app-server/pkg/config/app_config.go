@@ -45,7 +45,8 @@ func LoadConfig() (*AppConfig, error) {
 	cfg.AWSRegion = os.Getenv("AWS_REGION")
 	cfg.S3BucketName = os.Getenv("S3_BUCKET_NAME")
 	cfg.AppServerURL = os.Getenv("APP_SERVER_URL")
-	cfg.AuthServerURL = os.Getenv("REDIRECT_URL") // AuthServerURL is the REDIRECT_URL from auth-server's perspective
+	// AuthServerURL should be the base URL of the auth-server, which is the same as AppServerURL
+	cfg.AuthServerURL = os.Getenv("APP_SERVER_URL")
 
 	// Set default values for development if not in production
 	isProduction := cfg.Env == "production"
@@ -77,11 +78,11 @@ func LoadConfig() (*AppConfig, error) {
 	// Assuming REDIRECT_URL is the base URL for auth-server for now.
 	if cfg.AuthServerURL == "" {
 		if !isProduction {
-			// For local dev, auth-server runs on 8081
-			cfg.AuthServerURL = fmt.Sprintf("http://localhost:%s", "8081") // Assuming auth-server is on 8081
+			// For local dev, auth-server runs on 8080 (same as app-server for simplicity in local testing)
+			cfg.AuthServerURL = fmt.Sprintf("http://localhost:%s", cfg.PortAppServer)
 			log.Printf("📍 Using default Auth Server URL: %s", cfg.AuthServerURL)
 		} else {
-			return nil, fmt.Errorf("REDIRECT_URL (used as AuthServerURL) environment variable is required in production")
+			return nil, fmt.Errorf("APP_SERVER_URL (used as AuthServerURL) environment variable is required in production")
 		}
 	}
 

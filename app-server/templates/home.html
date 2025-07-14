@@ -81,7 +81,7 @@
     <div class="auth-notice">
         <h3>🔐 Authentication Required</h3>
         <p>Please authenticate with Google first via our Auth Server to start uploading files.</p>
-        <a href="http://localhost:8081/" class="upload-btn" style="background: #28a745;">
+        <a href="{{ .Data.AuthServerURL }}/login" class="upload-btn" style="background: #28a745;">
             Login with Google
         </a>
     </div>

@@ -54,6 +54,7 @@ type HomeData struct {
 	RecentUploads []FileUpload `json:"recent_uploads"`
 	TotalUploads  int          `json:"total_uploads"`
 	TotalSize     int64        `json:"total_size"`
+	AuthServerURL string       `json:"auth_server_url"` // Add AuthServerURL
 }
 
 // UploadData represents data for the upload page

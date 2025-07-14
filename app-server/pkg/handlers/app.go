@@ -63,6 +63,7 @@ func (h *AppHandler) HandleHome(w http.ResponseWriter, r *http.Request) {
 			RecentUploads: []models.FileUpload{}, // TODO: Load from database
 			TotalUploads:  0,
 			TotalSize:     0,
+			AuthServerURL: h.appConfig.AuthServerURL, // Pass AuthServerURL to template
 		},
 	}
 
