@@ -2,11 +2,11 @@ name: Deploy to AWS App Runner
 
 on:
   push:
-    branches: [main]
+    # branches: [main]
     tags:
       - 'v[0-9]+.[0-9]+.[0-9]+'
   pull_request:
-    branches: [main]
+    # branches: [main]
 
 env:
   AWS_REGION: ap-northeast-1
