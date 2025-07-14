@@ -1,11 +1,14 @@
-module auth-server
+module github.com/aruruka/go-google-s3-uploader/auth-server
 
 go 1.24.2
 
 require (
+	github.com/aruruka/go-google-s3-uploader/shared v0.0.0-00010101000000-000000000000
 	github.com/coreos/go-oidc/v3 v3.9.0
 	golang.org/x/oauth2 v0.15.0
 )
+
+replace github.com/aruruka/go-google-s3-uploader/shared => ../shared
 
 require (
 	cloud.google.com/go/compute v1.20.1 // indirect

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	"auth-server/pkg/config" // Import the new config package
+	"github.com/aruruka/go-google-s3-uploader/auth-server/pkg/config" // Import the new config package
 
 	"github.com/coreos/go-oidc/v3/oidc"
 	"golang.org/x/oauth2"

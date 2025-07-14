@@ -5,17 +5,17 @@ import (
 	"testing"
 	"time"
 
-	"app-server/pkg/models"
+	"github.com/aruruka/go-google-s3-uploader/shared/pkg/models"
 )
 
 // Test NewTemplateRenderer
 func TestNewTemplateRenderer(t *testing.T) {
 	renderer, err := NewTemplateRenderer()
-	
+
 	if err != nil {
 		t.Errorf("Expected no error, got: %v", err)
 	}
-	
+
 	if renderer == nil {
 		t.Error("Expected renderer to be created, got nil")
 	}
@@ -93,7 +93,7 @@ func TestTemplateRenderer_RenderTemplate(t *testing.T) {
 				if err != nil {
 					t.Errorf("Expected no error but got: %v", err)
 				}
-				
+
 				// Check that something was written
 				if buf.Len() == 0 {
 					t.Error("Expected output but got empty buffer")

@@ -5,10 +5,10 @@ import (
 	"log"
 	"net/http"
 
-	"auth-server/pkg/config" // This now refers to the package containing LoadEnv and AppConfig
-	"auth-server/pkg/handlers"
-	"auth-server/pkg/oauth"
-	"auth-server/pkg/templates"
+	"github.com/aruruka/go-google-s3-uploader/auth-server/pkg/config" // This now refers to the package containing LoadEnv and AppConfig
+	"github.com/aruruka/go-google-s3-uploader/auth-server/pkg/handlers"
+	"github.com/aruruka/go-google-s3-uploader/auth-server/pkg/oauth"
+	"github.com/aruruka/go-google-s3-uploader/auth-server/pkg/templates"
 )
 
 func main() {

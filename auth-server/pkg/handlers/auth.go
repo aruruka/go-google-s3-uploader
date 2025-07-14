@@ -10,10 +10,10 @@ import (
 	"net/http"
 	"time"
 
-	"auth-server/pkg/config"
-	"auth-server/pkg/models"
-	"auth-server/pkg/oauth"
-	"auth-server/pkg/templates"
+	"github.com/aruruka/go-google-s3-uploader/auth-server/pkg/config"
+	"github.com/aruruka/go-google-s3-uploader/auth-server/pkg/oauth"
+	"github.com/aruruka/go-google-s3-uploader/auth-server/pkg/templates"
+	"github.com/aruruka/go-google-s3-uploader/shared/pkg/models"
 )
 
 type AuthHandlerIface interface {
@@ -177,7 +177,14 @@ func (h *AuthHandler) HandleCallback(w http.ResponseWriter, r *http.Request) {
 	log.Printf("🔄 Redirecting to app-server...")
 
 	// Use appConfig.AppServerURL for redirect
-	http.Redirect(w, r, h.appConfig.AppServerURL, http.StatusTemporaryRedirect)
+	// In App Runner, both services run on same domain, so redirect to root
+	redirectURL := h.appConfig.AppServerURL
+	if h.appConfig.AppServerURL == fmt.Sprintf("https://%s", h.appConfig.ServiceDomain) {
+		// Same domain scenario (App Runner) - redirect to root path
+		redirectURL = "/"
+		log.Printf("🏠 Redirecting to root path (same domain)")
+	}
+	http.Redirect(w, r, redirectURL, http.StatusTemporaryRedirect)
 }
 
 func (h *AuthHandler) HandleLogout(w http.ResponseWriter, r *http.Request) {

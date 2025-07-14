@@ -10,10 +10,10 @@ import (
 	"strconv"
 	"time"
 
-	"app-server/pkg/config"
-	"app-server/pkg/models"
-	"app-server/pkg/s3"
-	"app-server/pkg/templates"
+	"github.com/aruruka/go-google-s3-uploader/app-server/pkg/config"
+	"github.com/aruruka/go-google-s3-uploader/app-server/pkg/s3"
+	"github.com/aruruka/go-google-s3-uploader/app-server/pkg/templates"
+	"github.com/aruruka/go-google-s3-uploader/shared/pkg/models"
 )
 
 // AppHandlerIface defines the interface for application handlers
@@ -48,8 +48,15 @@ func (h *AppHandler) HandleHome(w http.ResponseWriter, r *http.Request) {
 	user := h.getUserFromSession(r)
 	if user == nil {
 		log.Printf("❌ No user session found, redirecting to auth-server")
-		// Redirect to auth server for login
-		http.Redirect(w, r, h.appConfig.AuthServerURL+"/login", http.StatusTemporaryRedirect) // Use appConfig
+		// Check if AuthServerURL is the same as our domain (App Runner scenario)
+		if h.appConfig.AuthServerURL == h.appConfig.AppServerURL {
+			// Internal redirect to login page within the same service
+			log.Printf("🔄 Internal redirect to /login (same domain)")
+			http.Redirect(w, r, "/login", http.StatusTemporaryRedirect)
+		} else {
+			// External redirect to separate auth server (local development)
+			http.Redirect(w, r, h.appConfig.AuthServerURL+"/login", http.StatusTemporaryRedirect)
+		}
 		return
 	}
 

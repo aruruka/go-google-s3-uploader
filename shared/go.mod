@@ -1,3 +1,3 @@
-module shared
+module github.com/aruruka/go-google-s3-uploader/shared
 
-go 1.24.2
+go 1.21

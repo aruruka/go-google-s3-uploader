@@ -5,10 +5,10 @@ import (
 	"log"
 	"net/http"
 
-	"app-server/pkg/config" // Import the new config package
-	"app-server/pkg/handlers"
-	"app-server/pkg/s3"
-	"app-server/pkg/templates"
+	"github.com/aruruka/go-google-s3-uploader/app-server/pkg/config" // Import the new config package
+	"github.com/aruruka/go-google-s3-uploader/app-server/pkg/handlers"
+	"github.com/aruruka/go-google-s3-uploader/app-server/pkg/s3"
+	"github.com/aruruka/go-google-s3-uploader/app-server/pkg/templates"
 )
 
 func main() {

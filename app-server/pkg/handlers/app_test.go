@@ -8,7 +8,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"app-server/pkg/config" // Import the config package
+	"github.com/aruruka/go-google-s3-uploader/app-server/pkg/config" // Import the config package
 )
 
 // MockS3Client for testing handlers

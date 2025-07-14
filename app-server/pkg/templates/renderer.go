@@ -7,7 +7,7 @@ import (
 	"io"
 	"time"
 
-	"app-server/pkg/models"
+	"github.com/aruruka/go-google-s3-uploader/shared/pkg/models"
 )
 
 // TemplateRendererIface defines the interface for template rendering

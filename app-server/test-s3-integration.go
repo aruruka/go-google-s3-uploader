@@ -5,7 +5,7 @@
 // This file tests real AWS S3 operations with actual credentials
 // Use: go run -tags=integration test-s3-integration.go
 //
-// Purpose: 
+// Purpose:
 // 1. Validate S3 integration works with real AWS credentials
 // 2. Test permissions of IAM roles/users
 // 3. Verify bucket access and file operations
@@ -20,7 +20,7 @@ import (
 	"strings"
 	"time"
 
-	"app-server/pkg/s3"
+	"github.com/aruruka/go-google-s3-uploader/app-server/pkg/s3"
 )
 
 func main() {
@@ -32,17 +32,17 @@ func main() {
 
 	fmt.Printf("🧪 S3 Integration Test - Profile: %s\n", currentProfile)
 	fmt.Println("=" + strings.Repeat("=", 50))
-	
+
 	testS3WithCurrentProfile()
 }
 
 func testS3WithCurrentProfile() {
 	currentProfile := os.Getenv("AWS_PROFILE")
-	
+
 	// 验证必需的环境变量
 	bucketName := os.Getenv("S3_BUCKET_NAME")
 	region := os.Getenv("AWS_REGION")
-	
+
 	if bucketName == "" || region == "" {
 		fmt.Println("❌ Required environment variables not set:")
 		fmt.Println("   S3_BUCKET_NAME:", bucketName)
@@ -64,7 +64,7 @@ func testS3WithCurrentProfile() {
 	}
 
 	// 测试文件内容
-	testContent := fmt.Sprintf("Test file from profile: %s\nUploaded at: %s", 
+	testContent := fmt.Sprintf("Test file from profile: %s\nUploaded at: %s",
 		currentProfile, time.Now().Format("2006-01-02 15:04:05"))
 	testKey := fmt.Sprintf("integration-test/%s/test-file.txt", currentProfile)
 
@@ -97,6 +97,6 @@ func testS3WithCurrentProfile() {
 			fmt.Printf("   ✅ %s\n", file)
 		}
 	}
-	
+
 	fmt.Printf("\n🎉 Profile %s - All tests passed!\n", currentProfile)
 }
