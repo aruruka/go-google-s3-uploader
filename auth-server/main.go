@@ -4,27 +4,24 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 
-	"auth-server/pkg/config"
+	"auth-server/pkg/config" // This now refers to the package containing LoadEnv and AppConfig
 	"auth-server/pkg/handlers"
 	"auth-server/pkg/oauth"
 	"auth-server/pkg/templates"
 )
 
 func main() {
-	fmt.Println("🔐 Auth Server Starting on :8081")
+	fmt.Println("🔐 Auth Server Starting...")
 
-	// Load environment variables from .env file
-	if err := config.LoadEnv(".env"); err != nil {
-		log.Printf("Warning: Failed to load .env file: %v", err)
+	// Load application configuration
+	appConfig, err := config.LoadConfig()
+	if err != nil {
+		log.Fatalf("Failed to load application configuration: %v", err)
 	}
 
-	// Set default environment variables for development if not already set
-	setDefaultEnvVars()
-
 	// Initialize OAuth configuration
-	oauthConfig, err := oauth.NewConfig()
+	oauthConfig, err := oauth.NewConfig(appConfig)
 	if err != nil {
 		log.Fatalf("Failed to initialize OAuth config: %v", err)
 	}
@@ -56,34 +53,10 @@ func main() {
 	mux.Handle("/static/", http.StripPrefix("/static/", fs))
 
 	fmt.Println("✅ Auth Server ready")
-	fmt.Println("🌐 Visit: http://localhost:8081/login")
+	fmt.Printf("🌐 Visit: http://localhost:%s/login\n", appConfig.PortAuthServer)
 
 	// Start server
-	log.Fatal(http.ListenAndServe(":8081", mux))
-}
-
-func setDefaultEnvVars() {
-	isProduction := os.Getenv("ENV") == "production"
-
-	if os.Getenv("GOOGLE_CLIENT_ID") == "" {
-		log.Println("⚠️  GOOGLE_CLIENT_ID not set - OAuth will not work")
-		if !isProduction {
-			os.Setenv("GOOGLE_CLIENT_ID", "your-google-client-id")
-		}
-	}
-	if os.Getenv("GOOGLE_CLIENT_SECRET") == "" {
-		log.Println("⚠️  GOOGLE_CLIENT_SECRET not set - OAuth will not work")
-		if !isProduction {
-			os.Setenv("GOOGLE_CLIENT_SECRET", "your-google-client-secret")
-		}
-	}
-	if os.Getenv("REDIRECT_URL") == "" {
-		if isProduction {
-			log.Fatal("REDIRECT_URL environment variable is required in production")
-		}
-		os.Setenv("REDIRECT_URL", "http://localhost:8081/auth/callback")
-		log.Println("📍 Using default redirect URL: http://localhost:8081/auth/callback")
-	}
+	log.Fatal(http.ListenAndServe(":"+appConfig.PortAuthServer, mux))
 }
 
 func redirectToLogin(w http.ResponseWriter, r *http.Request) {

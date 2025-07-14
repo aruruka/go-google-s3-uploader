@@ -1,40 +1,65 @@
-# 多阶段构建 - 最小化最终镜像大小
-FROM golang:1.24-alpine AS builder
+# Multi-stage build - minimize final image size
 
-WORKDIR /app
+# Builder for app-server
+FROM golang:1.24-alpine AS app-server-builder
 
-# 复制依赖文件
+WORKDIR /app-server
+
+# Copy dependency files for app-server
 COPY app-server/go.mod app-server/go.sum ./
 RUN go mod download
 
-# 复制源代码
+# Copy app-server source code
 COPY app-server/ ./
 COPY shared/ ../shared/
 
-# 构建静态二进制文件
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main .
+# Build app-server binary
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o app-server-main .
 
-# 最终阶段 - 最小镜像
+# Builder for auth-server
+FROM golang:1.24-alpine AS auth-server-builder
+
+WORKDIR /auth-server
+
+# Copy dependency files for auth-server
+COPY auth-server/go.mod auth-server/go.sum ./
+RUN go mod download
+
+# Copy auth-server source code
+COPY auth-server/ ./
+COPY shared/ ../shared/
+
+# Build auth-server binary
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o auth-server-main .
+
+# Final stage - minimal image
 FROM alpine:latest
 
-# 安装CA证书（HTTPS需要）
+# Install CA certificates (required for HTTPS)
 RUN apk --no-cache add ca-certificates
 
-WORKDIR /root/
+WORKDIR /app
 
-# 从构建阶段复制二进制文件
-COPY --from=builder /app/main .
+# Copy binaries from builder stages
+COPY --from=app-server-builder /app-server/app-server-main ./app-server/app-server-main
+COPY --from=auth-server-builder /auth-server/auth-server-main ./auth-server/auth-server-main
 
-# 复制静态文件
-COPY --from=builder /shared ./shared
+# Copy shared static files
+COPY --from=app-server-builder /shared ./shared
 
-# 暴露端口
+# Copy the start script
+COPY start.sh .
+RUN chmod +x start.sh
+
+# Expose ports (assuming both services run on different ports)
 EXPOSE 8080
+EXPOSE 8081
 
-# 设置环境变量
-ENV PORT=8080
+# Set environment variables (these will be overridden by App Runner)
+ENV PORT_APP_SERVER=8080
+ENV PORT_AUTH_SERVER=8081
 ENV AWS_REGION=ap-northeast-1
 ENV S3_BUCKET_NAME=raymond-go-s3-uploader-dev-2025
 
-# 启动应用
-CMD ["./main"]
+# Start both applications
+CMD ["/app/start.sh"]

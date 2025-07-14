@@ -13,11 +13,11 @@ import (
 
 func main() {
 	// 获取端口配置，默认为8080（App Runner标准）
-	port := os.Getenv("PORT")
+	port := os.Getenv("PORT_APP_SERVER") // Use PORT_APP_SERVER
 	if port == "" {
 		port = "8080"
 	}
-	
+
 	fmt.Printf("📱 App Server Starting on :%s\n", port)
 
 	// Initialize template renderer
@@ -47,7 +47,7 @@ func main() {
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		}
 	})
-	
+
 	// API endpoint for file upload (used by frontend form)
 	http.HandleFunc("/api/upload", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
@@ -57,9 +57,9 @@ func main() {
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		}
 	})
-	
+
 	http.HandleFunc("/success", appHandler.HandleSuccess)
-	
+
 	// 健康检查端点 (App Runner 要求)
 	http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)

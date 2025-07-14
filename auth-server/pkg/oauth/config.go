@@ -4,7 +4,8 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"os"
+
+	"auth-server/pkg/config" // Import the new config package
 
 	"github.com/coreos/go-oidc/v3/oidc"
 	"golang.org/x/oauth2"
@@ -16,24 +17,22 @@ type Config struct {
 	Verifier     *oidc.IDTokenVerifier
 }
 
-func NewConfig() (*Config, error) {
-	clientID := os.Getenv("GOOGLE_CLIENT_ID")
-	clientSecret := os.Getenv("GOOGLE_CLIENT_SECRET")
-	redirectURL := os.Getenv("REDIRECT_URL")
-	isProduction := os.Getenv("ENV") == "production"
+// NewConfig initializes OAuth configuration using the provided AppConfig.
+func NewConfig(appConfig *config.AppConfig) (*Config, error) {
+	clientID := appConfig.GoogleClientID
+	clientSecret := appConfig.GoogleClientSecret
+	redirectURL := appConfig.RedirectURL
 
+	// The validation for these variables is now handled in config.LoadConfig()
+	// We just need to ensure they are not empty here, which should already be guaranteed by LoadConfig.
 	if clientID == "" {
-		return nil, fmt.Errorf("GOOGLE_CLIENT_ID environment variable is required")
+		return nil, fmt.Errorf("GOOGLE_CLIENT_ID is empty in AppConfig")
 	}
 	if clientSecret == "" {
-		return nil, fmt.Errorf("GOOGLE_CLIENT_SECRET environment variable is required")
+		return nil, fmt.Errorf("GOOGLE_CLIENT_SECRET is empty in AppConfig")
 	}
 	if redirectURL == "" {
-		if isProduction {
-			return nil, fmt.Errorf("REDIRECT_URL environment variable is required in production")
-		}
-		redirectURL = "http://localhost:8081/auth/callback"
-		log.Printf("Using default redirect URL: %s", redirectURL)
+		return nil, fmt.Errorf("REDIRECT_URL is empty in AppConfig")
 	}
 
 	provider, err := oidc.NewProvider(context.Background(), "https://accounts.google.com")
@@ -52,6 +51,8 @@ func NewConfig() (*Config, error) {
 	verifier := provider.Verifier(&oidc.Config{
 		ClientID: clientID,
 	})
+
+	log.Printf("OAuth Config Initialized: RedirectURL=%s", redirectURL)
 
 	return &Config{
 		OAuth2Config: oauth2Config,

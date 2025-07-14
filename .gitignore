@@ -223,3 +223,9 @@ private-*.sh
 *.draft.md
 NOTES.md
 TODO.md
+
+# Local development artifacts
+.roo/
+uv_project/
+app-server-test/
+auth-server-test/
