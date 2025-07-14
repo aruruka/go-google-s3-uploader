@@ -1,15 +1,14 @@
 package handlers
 
 import (
-	"bytes"
 	"context"
 	"errors"
 	"io"
-	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
-	"net/textproto"
 	"testing"
+
+	"app-server/pkg/config" // Import the config package
 )
 
 // MockS3Client for testing handlers
@@ -71,32 +70,16 @@ func (m *MockTemplateRenderer) RenderTemplate(w io.Writer, templateName string, 
 	return err
 }
 
-// Helper function to create multipart form with file
-func createMultipartRequest(filename, contentType string, content []byte) *http.Request {
-	body := &bytes.Buffer{}
-	writer := multipart.NewWriter(body)
-
-	// Create form file with proper headers
-	h := make(textproto.MIMEHeader)
-	h.Set("Content-Disposition", `form-data; name="file"; filename="`+filename+`"`)
-	h.Set("Content-Type", contentType)
-
-	part, _ := writer.CreatePart(h)
-	part.Write(content)
-	writer.Close()
-
-	req := httptest.NewRequest("POST", "/upload", body)
-	req.Header.Set("Content-Type", writer.FormDataContentType())
-
-	return req
-}
-
 // Test AppHandler creation
 func TestNewAppHandler(t *testing.T) {
 	mockRenderer := &MockTemplateRenderer{}
 	mockS3Client := &MockS3Client{}
+	mockAppConfig := &config.AppConfig{
+		AuthServerURL: "http://mock-auth-server.com", // Mock URL for testing redirects
+		S3BucketName:  "mock-s3-bucket",
+	}
 
-	handler := NewAppHandler(mockRenderer, mockS3Client)
+	handler := NewAppHandler(mockAppConfig, mockRenderer, mockS3Client)
 
 	if handler == nil {
 		t.Error("Expected handler to be created, got nil")
@@ -107,9 +90,14 @@ func TestNewAppHandler(t *testing.T) {
 func TestAppHandler_IsValidFileType(t *testing.T) {
 	mockRenderer := &MockTemplateRenderer{}
 	mockS3Client := &MockS3Client{}
+	mockAppConfig := &config.AppConfig{
+		AuthServerURL: "http://mock-auth-server.com",
+		S3BucketName:  "mock-s3-bucket",
+	}
 	handler := &AppHandler{
-		renderer: mockRenderer,
-		s3Client: mockS3Client,
+		appConfig: mockAppConfig, // Add appConfig
+		renderer:  mockRenderer,
+		s3Client:  mockS3Client,
 	}
 
 	tests := []struct {
@@ -143,9 +131,14 @@ func TestAppHandler_IsValidFileType(t *testing.T) {
 func TestAppHandler_HandleHome(t *testing.T) {
 	mockRenderer := &MockTemplateRenderer{}
 	mockS3Client := &MockS3Client{}
+	mockAppConfig := &config.AppConfig{
+		AuthServerURL: "http://mock-auth-server.com", // Mock URL for testing redirects
+		S3BucketName:  "mock-s3-bucket",
+	}
 	handler := &AppHandler{
-		renderer: mockRenderer,
-		s3Client: mockS3Client,
+		appConfig: mockAppConfig, // Add appConfig
+		renderer:  mockRenderer,
+		s3Client:  mockS3Client,
 	}
 
 	req := httptest.NewRequest("GET", "/", nil)
