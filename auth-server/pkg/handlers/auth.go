@@ -66,7 +66,7 @@ func (h *AuthHandler) HandleGoogleAuth(w http.ResponseWriter, r *http.Request) {
 		Value:    state,
 		Expires:  time.Now().Add(10 * time.Minute),
 		HttpOnly: true,
-		Secure:   true, // Change to true for HTTPS
+		Secure:   false, // Temporarily change to false for debugging
 		SameSite: http.SameSiteLaxMode,
 	})
 
@@ -163,7 +163,7 @@ func (h *AuthHandler) HandleCallback(w http.ResponseWriter, r *http.Request) {
 		Value:    base64.StdEncoding.EncodeToString(userJSON),
 		Expires:  time.Now().Add(24 * time.Hour),
 		HttpOnly: false,
-		Secure:   true, // Change to true for HTTPS
+		Secure:   false, // Temporarily change to false for debugging
 		SameSite: http.SameSiteLaxMode,
 		Path:     "/",
 	}
